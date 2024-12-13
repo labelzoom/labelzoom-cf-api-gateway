@@ -91,6 +91,11 @@ async function proxyRequestToBackend(request: Request, url: URL, env: Env, reque
 export default {
     async fetch(request, env, ctx): Promise<Response> {
         const url = new URL(request.url);
+        
+        // Edge request validation and filtering
+        if (url.pathname.startsWith('/api/v2/')) {
+            if (request.headers.get('Content-Type')?.toLowerCase().startsWith('multipart/form-data')) return Response.json({message:"multipart/form-data is not supported. Please see our API documentation at https://api.labelzoom.net/api"}, { status: 400 });
+        }
 
         // API modifiers
         if (url.pathname.startsWith('/api/')) {
