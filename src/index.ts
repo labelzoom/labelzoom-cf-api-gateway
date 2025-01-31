@@ -13,6 +13,22 @@
 
 import { handleOptions, responseWithAllowOrigin } from "./cors";
 
+function getContentType(fileExtension: string): string | undefined {
+    switch (fileExtension) {
+        case "json": return "application/json";
+        case "xml":  return "application/xml";
+        case "zpl":  return "text/plain";
+        case "png":  return "image/png";
+        case "jpg":
+        case "jpeg":
+            return "image/jpeg";
+        case "gif":  return "image/gif";
+        case "bmp":  return "image/bmp";
+        case "pdf":  return "application/pdf";
+    }
+    return undefined;
+}
+
 /**
  * Log conversion request and response data to Cloudflare R2
  * @param request 
@@ -35,7 +51,7 @@ async function handleConversionLog(request: Request<unknown, IncomingRequestCfPr
     
         // Clone and log request asynchronously
         if (loggingEnabled) ctx.waitUntil(Promise.all([
-            env.LZ_R2_BUCKET.put(requestID + `/in.${sourceFormat}`, request.clone().body), // TODO: Set content type
+            env.LZ_R2_BUCKET.put(requestID + `/in.${sourceFormat}`, request.clone().body, {httpMetadata:{contentType:getContentType(sourceFormat)}}),
             env.LZ_R2_BUCKET.put(requestID + '/params.json', url.searchParams.get('params'), {httpMetadata:{contentType:'application/json'}})
         ]));
     
@@ -44,7 +60,7 @@ async function handleConversionLog(request: Request<unknown, IncomingRequestCfPr
     
         // Clone and log response asynchronously
         if (loggingEnabled) ctx.waitUntil(
-            env.LZ_R2_BUCKET.put(requestID + `/out.${targetFormat}`, response.clone().body) // TODO: Set content type
+            env.LZ_R2_BUCKET.put(requestID + `/out.${targetFormat}`, response.clone().body, {httpMetadata:{contentType:getContentType(targetFormat)}})
         );
     
         // Return response to client
