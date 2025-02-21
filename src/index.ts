@@ -13,6 +13,8 @@
 
 import { handleOptions, responseWithAllowOrigin } from "./cors";
 
+const LABEL_CONVERSION_PATH_PATTERN = /^\/api\/v2\/convert\/[a-z]+\/to\/[a-z]+\/?$/i;
+
 function getContentType(fileExtension: string): string | undefined {
     switch (fileExtension) {
         case "json": return "application/json";
@@ -25,8 +27,8 @@ function getContentType(fileExtension: string): string | undefined {
         case "gif":  return "image/gif";
         case "bmp":  return "image/bmp";
         case "pdf":  return "application/pdf";
+        default:     return undefined;
     }
-    return undefined;
 }
 
 /**
@@ -119,7 +121,7 @@ export default {
                 // Handle CORS preflight requests
                 return handleOptions(request, env);
             }
-            if (url.pathname.startsWith('/api/v2/convert/')) {
+            if (LABEL_CONVERSION_PATH_PATTERN.test(url.pathname)) {
                 return responseWithAllowOrigin(
                     await handleConversionLog(request, env, ctx, url),
                     request.headers.get('Origin') ?? '*'
