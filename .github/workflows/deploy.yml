@@ -34,6 +34,7 @@ jobs:
     needs: [test]
     if: github.event_name == 'push'
     name: Deploy to Beta
+    environment: beta
     steps:
       - uses: actions/checkout@v4
       - name: Deploy
@@ -49,6 +50,7 @@ jobs:
     strategy:
       matrix:
         environment: ['public', 'eus1', 'eus2']
+    environment: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@v4
       - name: Deploy
