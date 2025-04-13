@@ -53,8 +53,8 @@ async function handleConversionLog(request: Request<unknown, IncomingRequestCfPr
     
         // Clone and log request asynchronously
         if (loggingEnabled) ctx.waitUntil(Promise.all([
-            env.LZ_R2_BUCKET.put(requestID + `/in.${sourceFormat}`, request.clone().body, {httpMetadata:{contentType:getContentType(sourceFormat)}}),
-            env.LZ_R2_BUCKET.put(requestID + '/params.json', url.searchParams.get('params'), {httpMetadata:{contentType:'application/json'}})
+            env.LZ_R2_BUCKET.put(`${requestID}/in.${sourceFormat}`, request.clone().body, {httpMetadata:{contentType:getContentType(sourceFormat)}}),
+            env.LZ_R2_BUCKET.put(`${requestID}/params.json`, url.searchParams.get('params'), {httpMetadata:{contentType:'application/json'}}),
         ]));
     
         // Generate response
@@ -62,7 +62,7 @@ async function handleConversionLog(request: Request<unknown, IncomingRequestCfPr
     
         // Clone and log response asynchronously
         if (loggingEnabled) ctx.waitUntil(
-            env.LZ_R2_BUCKET.put(requestID + `/out.${targetFormat}`, response.clone().body, {httpMetadata:{contentType:getContentType(targetFormat)}})
+            env.LZ_R2_BUCKET.put(`${requestID}/out.${targetFormat}`, response.clone().body, {httpMetadata:{contentType:getContentType(targetFormat)}})
         );
     
         // Return response to client
