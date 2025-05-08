@@ -94,12 +94,16 @@ async function proxyRequestToBackend(request: Request, url: URL, env: Env, reque
     // Force redirects to be relative because I couldn't get it to work in Spring Boot
     if (response.status === 301 || response.status === 302) {
         const locationHeader = response.headers.get('Location') ?? '';
-        if (locationHeader.includes('labelzoom.net/')) {
-            const url = new URL(locationHeader);
-
-            const newResponse = new Response(response.body, response);
-            newResponse.headers.set('Location', url.pathname + url.search);
-            return newResponse;
+        try {
+            const parsedUrl = new URL(locationHeader);
+            const allowedHosts = ['labelzoom.net', 'www.labelzoom.net'];
+            if (allowedHosts.includes(parsedUrl.host)) {
+                const newResponse = new Response(response.body, response);
+                newResponse.headers.set('Location', parsedUrl.pathname + parsedUrl.search);
+                return newResponse;
+            }
+        } catch (e) {
+            // Log or handle invalid URL parsing if necessary
         }
     }
 
