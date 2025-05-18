@@ -1,9 +1,19 @@
+/* CORS-safelisted response headers:
+ * - Cache-Control
+ * - Content-Language
+ * - Content-Length
+ * - Content-Type
+ * - Expires
+ * - Last-Modified
+ * - Pragma
+ */
+
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,HEAD,POST,PUT,DELETE,OPTIONS",
     "Access-Control-Max-Age": "86400",
     "Access-Control-Allow-Credentials": "true",
-    "Access-Control-Expose-Headers": "X-LZ-Request-ID",
+    "Access-Control-Expose-Headers": "Retry-After, X-LZ-Request-ID",
 };
 
 /**
@@ -19,7 +29,7 @@ export async function handleOptions(request: Request, env: Env): Promise<Respons
     }
 
     if (
-        request.headers.get("Origin") !== null &&
+        origin !== '' &&
         request.headers.get("Access-Control-Request-Method") !== null &&
         request.headers.get("Access-Control-Request-Headers") !== null
     ) {
@@ -27,7 +37,7 @@ export async function handleOptions(request: Request, env: Env): Promise<Respons
         return new Response(null, {
             headers: {
                 ...corsHeaders,
-                "Access-Control-Allow-Origin": request.headers.get("Origin") ?? '',
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Headers": request.headers.get("Access-Control-Request-Headers") ?? '',
             },
         });

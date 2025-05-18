@@ -82,11 +82,7 @@ async function handleConversionLog(request: Request<unknown, IncomingRequestCfPr
 async function proxyRequestToBackend(request: Request, url: URL, env: Env, requestID = ''): Promise<Response> {
     const backendUrl = env.LZ_PROD_API_BASE_URL + url.pathname + url.search;
     const newRequest = new Request(backendUrl, request);
-    let ip = request.headers.get("X-Forwarded-For") ?? '';
-    if (!ip) {
-        ip = request.headers.get("Cf-Connecting-Ip") ?? '';
-    }
-    newRequest.headers.set('X-LZ-IP', ip);
+    newRequest.headers.set('X-LZ-IP', request.headers.get("Cf-Connecting-Ip") ?? request.headers.get("X-Forwarded-For") ?? '');
     newRequest.headers.set('X-LZ-Secret-Key', env.LZ_PROD_API_SECRET_KEY)
     if (requestID) newRequest.headers.set("X-LZ-Request-ID", requestID);
     const response = await fetch(newRequest);
