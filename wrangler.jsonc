@@ -1,0 +1,141 @@
+/**
+ * ==================================================================
+ * 🚀 This file was generated using `wrangler-cfg migrate` command. 🚀
+ * 
+ * 📌 Learn more, contribute, or report issues:
+ *    👉 [https://github.com/jalmonter/wrangler-cfg#readme]
+ *     
+ * You can safely remove this banner if you want.
+ * ==================================================================
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "labelzoom-cf-api-proxy",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-08-06",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "tail_consumers": [
+    {
+      "service": "labelzoom-cf-api-proxy-tail",
+      "environment": "production"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "LZ_R2_BUCKET",
+      "bucket_name": "labelzoom-conversions-dev"
+    }
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 0.25
+    }
+  },
+  "limits": {
+    "cpu_ms": 100
+  },
+  "vars": {
+    "LZ_ALLOWED_ORIGINS": [
+      "https://labelzoom.net",
+      "https://www.labelzoom.net",
+      "https://beta.labelzoom.net",
+      "https://gatsby.labelzoom.net"
+    ],
+    "LZ_LOG_SAMPLE_RATE": 1,
+    "LZ_ERROR_SAMPLE_RATE": 1,
+    "LZ_PROD_API_BASE_URL": "https://api-backend.labelzoom.net"
+  },
+  "env": {
+    "beta": {
+      "vars": {
+        "LZ_ALLOWED_ORIGINS": [
+          "https://labelzoom.net",
+          "https://www.labelzoom.net",
+          "https://beta.labelzoom.net",
+          "https://gatsby.labelzoom.net"
+        ],
+        "LZ_LOG_SAMPLE_RATE": 1,
+        "LZ_ERROR_SAMPLE_RATE": 1,
+        "LZ_PROD_API_BASE_URL": "https://api-backend.labelzoom.net"
+      },
+      "limits": {
+        "cpu_ms": 100
+      },
+      "r2_buckets": [
+        {
+          "binding": "LZ_R2_BUCKET",
+          "bucket_name": "labelzoom-conversions-dev"
+        }
+      ]
+    },
+    "public": {
+      "vars": {
+        "LZ_ALLOWED_ORIGINS": [
+          "https://labelzoom.net",
+          "https://www.labelzoom.net",
+          "https://beta.labelzoom.net",
+          "https://gatsby.labelzoom.net"
+        ],
+        "LZ_LOG_SAMPLE_RATE": 0,
+        "LZ_ERROR_SAMPLE_RATE": 0,
+        "LZ_PROD_API_BASE_URL": "https://api-backend.labelzoom.net"
+      },
+      "limits": {
+        "cpu_ms": 100
+      },
+      "r2_buckets": [
+        {
+          "binding": "LZ_R2_BUCKET",
+          "bucket_name": "labelzoom-conversions-prod"
+        }
+      ]
+    },
+    "eus1": {
+      "vars": {
+        "LZ_ALLOWED_ORIGINS": [
+          "https://labelzoom.net",
+          "https://www.labelzoom.net",
+          "https://beta.labelzoom.net",
+          "https://gatsby.labelzoom.net"
+        ],
+        "LZ_LOG_SAMPLE_RATE": 0,
+        "LZ_ERROR_SAMPLE_RATE": 0,
+        "LZ_PROD_API_BASE_URL": "https://prod-api-eus1-backend.labelzoom.net"
+      },
+      "limits": {
+        "cpu_ms": 100
+      },
+      "r2_buckets": [
+        {
+          "binding": "LZ_R2_BUCKET",
+          "bucket_name": "labelzoom-conversions-prod-eus1"
+        }
+      ]
+    },
+    "eus2": {
+      "vars": {
+        "LZ_ALLOWED_ORIGINS": [
+          "https://labelzoom.net",
+          "https://www.labelzoom.net",
+          "https://beta.labelzoom.net",
+          "https://gatsby.labelzoom.net"
+        ],
+        "LZ_LOG_SAMPLE_RATE": 0.001,
+        "LZ_ERROR_SAMPLE_RATE": 1,
+        "LZ_PROD_API_BASE_URL": "https://prod-api-eus2-backend.labelzoom.net"
+      },
+      "limits": {
+        "cpu_ms": 100
+      },
+      "r2_buckets": [
+        {
+          "binding": "LZ_R2_BUCKET",
+          "bucket_name": "labelzoom-conversions-prod-eus2"
+        }
+      ]
+    }
+  }
+}
