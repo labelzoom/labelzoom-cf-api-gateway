@@ -47,6 +47,7 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: 4
           command: deploy --env beta
   prod-deploy:
     runs-on: ubuntu-latest
@@ -66,4 +67,5 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: 4
           command: deploy --env ${{ matrix.environment }}
