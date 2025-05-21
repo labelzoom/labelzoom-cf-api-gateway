@@ -1,141 +1,54 @@
 /**
- * ==================================================================
- * 🚀 This file was generated using `wrangler-cfg migrate` command. 🚀
- * 
- * 📌 Learn more, contribute, or report issues:
- *    👉 [https://github.com/jalmonter/wrangler-cfg#readme]
- *     
- * You can safely remove this banner if you want.
- * ==================================================================
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "labelzoom-cf-api-proxy",
-  "main": "src/index.ts",
-  "compatibility_date": "2024-08-06",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
-  "tail_consumers": [
-    {
-      "service": "labelzoom-cf-api-proxy-tail",
-      "environment": "production"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "LZ_R2_BUCKET",
-      "bucket_name": "labelzoom-conversions-dev"
-    }
-  ],
-  "observability": {
-    "logs": {
-      "enabled": true,
-      "head_sampling_rate": 0.25
-    }
-  },
-  "limits": {
-    "cpu_ms": 100
-  },
-  "vars": {
-    "LZ_ALLOWED_ORIGINS": [
-      "https://labelzoom.net",
-      "https://www.labelzoom.net",
-      "https://beta.labelzoom.net",
-      "https://gatsby.labelzoom.net"
-    ],
-    "LZ_LOG_SAMPLE_RATE": 1,
-    "LZ_ERROR_SAMPLE_RATE": 1,
-    "LZ_PROD_API_BASE_URL": "https://api-backend.labelzoom.net"
-  },
-  "env": {
-    "beta": {
-      "vars": {
-        "LZ_ALLOWED_ORIGINS": [
-          "https://labelzoom.net",
-          "https://www.labelzoom.net",
-          "https://beta.labelzoom.net",
-          "https://gatsby.labelzoom.net"
-        ],
-        "LZ_LOG_SAMPLE_RATE": 1,
-        "LZ_ERROR_SAMPLE_RATE": 1,
-        "LZ_PROD_API_BASE_URL": "https://api-backend.labelzoom.net"
-      },
-      "limits": {
-        "cpu_ms": 100
-      },
-      "r2_buckets": [
-        {
-          "binding": "LZ_R2_BUCKET",
-          "bucket_name": "labelzoom-conversions-dev"
-        }
-      ]
-    },
-    "public": {
-      "vars": {
-        "LZ_ALLOWED_ORIGINS": [
-          "https://labelzoom.net",
-          "https://www.labelzoom.net",
-          "https://beta.labelzoom.net",
-          "https://gatsby.labelzoom.net"
-        ],
-        "LZ_LOG_SAMPLE_RATE": 0,
-        "LZ_ERROR_SAMPLE_RATE": 0,
-        "LZ_PROD_API_BASE_URL": "https://api-backend.labelzoom.net"
-      },
-      "limits": {
-        "cpu_ms": 100
-      },
-      "r2_buckets": [
-        {
-          "binding": "LZ_R2_BUCKET",
-          "bucket_name": "labelzoom-conversions-prod"
-        }
-      ]
-    },
-    "eus1": {
-      "vars": {
-        "LZ_ALLOWED_ORIGINS": [
-          "https://labelzoom.net",
-          "https://www.labelzoom.net",
-          "https://beta.labelzoom.net",
-          "https://gatsby.labelzoom.net"
-        ],
-        "LZ_LOG_SAMPLE_RATE": 0,
-        "LZ_ERROR_SAMPLE_RATE": 0,
-        "LZ_PROD_API_BASE_URL": "https://prod-api-eus1-backend.labelzoom.net"
-      },
-      "limits": {
-        "cpu_ms": 100
-      },
-      "r2_buckets": [
-        {
-          "binding": "LZ_R2_BUCKET",
-          "bucket_name": "labelzoom-conversions-prod-eus1"
-        }
-      ]
-    },
-    "eus2": {
-      "vars": {
-        "LZ_ALLOWED_ORIGINS": [
-          "https://labelzoom.net",
-          "https://www.labelzoom.net",
-          "https://beta.labelzoom.net",
-          "https://gatsby.labelzoom.net"
-        ],
-        "LZ_LOG_SAMPLE_RATE": 0.001,
-        "LZ_ERROR_SAMPLE_RATE": 1,
-        "LZ_PROD_API_BASE_URL": "https://prod-api-eus2-backend.labelzoom.net"
-      },
-      "limits": {
-        "cpu_ms": 100
-      },
-      "r2_buckets": [
-        {
-          "binding": "LZ_R2_BUCKET",
-          "bucket_name": "labelzoom-conversions-prod-eus2"
-        }
-      ]
-    }
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "labelzoom-cf-api-proxy-hono",
+	"main": "./src/worker/index.ts",
+	"compatibility_date": "2025-04-01",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"observability": {
+		"enabled": true
+	},
+	"upload_source_maps": true,
+	"assets": {
+		"not_found_handling": "single-page-application"
+	}
+	/**
+	 * Smart Placement
+	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
+	 */
+	// "placement": { "mode": "smart" },
+
+	/**
+	 * Bindings
+	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
+	 * databases, object storage, AI inference, real-time communication and more.
+	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
+	 */
+
+	/**
+	 * Environment Variables
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
+	 */
+	// "vars": { "MY_VARIABLE": "production_value" },
+	/**
+	 * Note: Use secrets to store sensitive data.
+	 * https://developers.cloudflare.com/workers/configuration/secrets/
+	 */
+
+	/**
+	 * Static Assets
+	 * https://developers.cloudflare.com/workers/static-assets/binding/
+	 */
+	// "assets": { "directory": "./public/", "binding": "ASSETS" },
+
+	/**
+	 * Service Bindings (communicate between multiple Workers)
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
+	 */
+	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
 }
