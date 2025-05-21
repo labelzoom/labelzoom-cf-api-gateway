@@ -29,6 +29,13 @@
      * databases, object storage, AI inference, real-time communication and more.
      * https://developers.cloudflare.com/workers/runtime-apis/bindings/
      */
+    "hyperdrive": [
+        {
+            "binding": "DB",
+            "id": "acbb74fcce674bb1920028d49c46b58f",
+            "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
+        }
+    ],
 
     /**
      * Environment Variables

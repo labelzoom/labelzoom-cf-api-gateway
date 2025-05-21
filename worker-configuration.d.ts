@@ -9,7 +9,7 @@ declare namespace Cloudflare {
         LZ_PROD_API_BASE_URL: string;
         LZ_PROD_API_SECRET_KEY: string;
         LZ_R2_BUCKET: R2Bucket;
-        HYPERDRIVE: Hyperdrive;
+        DB: Hyperdrive;
     }
 }
 interface Env extends Cloudflare.Env {}
