@@ -45,9 +45,9 @@ app.get("/api/", (c) => c.json({ name: "Cloudflare" }));
 
 app.get("/api/v2/heartbeat/db", async (c) => {
     const conn = await getConnection(c.env);
-    const [rows] = await conn.query('SHOW TABLES;');
+    await conn.query('SELECT 1;');
     await conn.end();
-    return c.json(rows);
+    return c.text("Database OK");
 });
 
 export default app;
