@@ -1,5 +1,7 @@
-import { Hono } from "hono";
+import { Hono, HonoRequest } from "hono";
 import { cors } from 'hono/cors';
+import { HTTPException } from "hono/http-exception";
+import { decode } from 'hono/jwt'
 import mysql from 'mysql2/promise';
 
 async function getConnection(env: Env): Promise<mysql.Connection> {
@@ -14,6 +16,29 @@ async function getConnection(env: Env): Promise<mysql.Connection> {
         // Configure mysql2 to use static parsing instead of eval() parsing with disableEval
         disableEval: true,
     });
+}
+
+/**
+ * Validates the `Authorization` header on the request. If anything is wrong with the header (wrong format, invalid JWT token, invalid license or secret),
+ * then an `HTTPException` will be thrown.
+ * @throws {HTTPException}
+ */
+async function validateLicense(env: Env, req: HonoRequest) {
+    // Verify header
+    const authHeader = req.header('Authorization') ?? '';
+    if (!authHeader.startsWith('Bearer ')) throw new HTTPException(401, { message: "Invalid Authorization header" });
+
+    // Verify token
+    const token = authHeader.substring('Bearer '.length);
+    const { payload } = decode(token); // TODO: Add verification
+    if (!payload) throw new HTTPException(401, { message: "Invalid bearer token" });
+
+    // Verify license
+    const licenseId = payload.lic;
+    const licenseKey = payload.secret;
+    const db = await getConnection(env);
+    const [results] = await (db as any).query("SELECT * FROM licenses WHERE id = ? AND license_secret = ?;", [licenseId, licenseKey]);
+    if (results.length !== 1) throw new HTTPException(401, { message: "Invalid license" });
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -41,13 +66,10 @@ app.use("/api/*", async (c, next) => {
     return corsMiddleware(c, next);
 });
 
-app.get("/api/", (c) => c.json({ name: "Cloudflare" }));
-
-app.get("/api/v2/heartbeat/db", async (c) => {
-    const conn = await getConnection(c.env);
-    await conn.query('SELECT 1;');
-    await conn.end();
-    return c.text("Database OK");
+app.get("/api/v2/convert/url/to/zpl/:url{.+}", async (c) => {
+    const url = new URL(c.req.param('url') ?? '');
+    await validateLicense(c.env, c.req);
+    return fetch(url);
 });
 
 export default app;
