@@ -139,7 +139,7 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
     return n ?? await next();
 });
 
-app.all("*", async (c) => {
+app.notFound(async (c) => {
     const url = new URL(c.req.url);
     const backendUrl = c.env.LZ_PROD_API_BASE_URL + url.pathname + url.search;
     const response = await proxy(backendUrl, {
