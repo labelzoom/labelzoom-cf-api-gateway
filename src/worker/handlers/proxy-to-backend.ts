@@ -15,26 +15,12 @@ export const proxyToBackend = ({
     return async function proxyToBackend(c) {
         const url = new URL(c.req.url);
         const backendUrl = baseUrl + url.pathname + url.search;
-        const response = await proxy(backendUrl, {
+        return await proxy(backendUrl, {
             ...c.req,
             headers: {
                 ...c.req.header(),
                 ...headers,
             }
         });
-        
-        // Force redirects to be relative because I couldn't get it to work in Spring Boot
-        if (response.status === 301 || response.status === 302) {
-            const locationHeader = response.headers.get('Location') ?? '';
-            if (locationHeader.includes('labelzoom.net/')) {
-                const url = new URL(locationHeader);
-
-                const newResponse = new Response(response.body, response);
-                newResponse.headers.set('Location', url.pathname + url.search);
-                return newResponse;
-            }
-        }
-
-        return response;
     }
 };

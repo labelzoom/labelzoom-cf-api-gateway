@@ -7,6 +7,7 @@ import { requestId } from "hono/request-id";
 import mysql from 'mysql2/promise';
 import { logToR2 } from "./middleware/log-to-r2";
 import { proxyToBackend } from "./handlers/proxy-to-backend";
+import { forceRelativeRedirects } from "./middleware/force-relative-redirects";
 
 /**
  * TODO: Get rid of this once Cloudflare adds this type to the output of `wrangler types`
@@ -95,6 +96,8 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
         sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
     })(c, next);
 });
+
+app.use(forceRelativeRedirects());
 
 app.notFound(async (c) => {
     return proxyToBackend({
