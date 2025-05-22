@@ -60,7 +60,7 @@
         ],
         "LZ_LOG_SAMPLE_RATE": 1,
         "LZ_ERROR_SAMPLE_RATE": 1,
-        "LZ_PROD_API_BASE_URL": "http://local.labelzoom.net:5000",
+        "LZ_PROD_API_BASE_URL": "https://api-backend.labelzoom.net",
         "ENVIRONMENT": "dev",
     },
     "env": {
