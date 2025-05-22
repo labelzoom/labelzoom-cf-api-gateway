@@ -1,6 +1,17 @@
+/**
+ * @module
+ * Cloudflare Hyperdrive Middleware for Hono.
+ */
+
 import mysql from 'mysql2/promise';
 import { MiddlewareHandler } from "hono";
-import { Connection } from '../types/connection';
+
+/**
+ * @todo TODO: Get rid of this once Cloudflare adds this type to the output of `wrangler types`
+ */
+export type Connection = mysql.Connection & {
+    query(sql: string, values: any): Promise<[mysql.OkPacket | mysql.ResultSetHeader | mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket[], mysql.FieldPacket[]]>;
+};
 
 async function getConnection(hyperdrive: Hyperdrive): Promise<Connection> {
     return (await mysql.createConnection({
@@ -17,10 +28,19 @@ async function getConnection(hyperdrive: Hyperdrive): Promise<Connection> {
     }) as Connection);
 }
 
+export type HyperdriveVariables = {
+    db: Connection;
+};
+
 export type HyperdriveOptions = {
     hyperdrive?: Hyperdrive;
 };
 
+/**
+ * Cloudflare Hyperdrive Middleware for Hono.
+ * @param hyperdriveOptions 
+ * @returns 
+ */
 export const hyperdrive = (hyperdriveOptions: HyperdriveOptions = {}): MiddlewareHandler => {
     const hyperdriveConfig = hyperdriveOptions.hyperdrive;
     if (!hyperdriveConfig) throw new Error('hyperdrive middleware requires hyperdrive configuration');

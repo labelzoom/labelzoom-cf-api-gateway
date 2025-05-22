@@ -8,9 +8,8 @@ import { logToR2 } from "./middleware/log-to-r2";
 import { proxyToBackend } from "./handlers/proxy-to-backend";
 import { forceRelativeRedirects } from "./middleware/force-relative-redirects";
 import { every } from "hono/combine";
-import { hyperdrive } from "./middleware/hyperdrive";
+import { Connection, hyperdrive } from "./middleware/hyperdrive";
 import { bearerAuth } from "hono/bearer-auth";
-import { Connection } from "./types/connection";
 
 /**
  * Validates the `Authorization` header on the request. If anything is wrong with the header (wrong format, invalid JWT token, invalid license or secret),
@@ -18,7 +17,7 @@ import { Connection } from "./types/connection";
  * @throws {HTTPException}
  */
 async function validateLicense(token: string, c: Context) {
-    const db = c.get('db') as Connection|undefined;
+    const db: Connection | undefined = c.get('db');
     if (!db) throw new Error('license validator must be used with (and sequenced after) the hyperdrive middleware');
 
     try {
