@@ -1,6 +1,6 @@
 import { Context, Hono } from "hono";
 import { cors } from 'hono/cors';
-import { decode } from 'hono/jwt'
+import { decode } from 'hono/jwt';
 import { proxy } from "hono/proxy";
 import { requestId } from "hono/request-id";
 import mysql from 'mysql2/promise';
@@ -18,11 +18,11 @@ import { Connection } from "./types/connection";
  * @throws {HTTPException}
  */
 async function validateLicense(token: string, c: Context) {
-    const db = c.get('db') as Connection;
+    const db = c.get('db') as Connection|undefined;
     if (!db) throw new Error('license validator must be used with (and sequenced after) the hyperdrive middleware');
 
     try {
-        const { payload } = decode(token); // TODO: Add verification
+        const { payload } = decode(token); // TODO: Add token verification (verify expiration date and signature) rather than just decoding
         if (!payload) return false;
 
         // Verify license
@@ -39,6 +39,7 @@ async function validateLicense(token: string, c: Context) {
 
 const app = new Hono<{ Bindings: Env }>();
 
+// Middleware for all API requests
 app.use("/api/*", async (c, next) => {
     return cors({
         origin: c.env.LZ_ALLOWED_ORIGINS,
@@ -72,11 +73,7 @@ app.use("/api/v2/convert/url/to/zpl/*", async (c, next) => {
         })
     )(c, next);
 });
-app.get("/api/v2/convert/url/to/zpl/:url{.+}", async (c) => {
-    const url = new URL(c.req.param('url') ?? '');
-    // await validateLicense(c.env, c.req);
-    return proxy(url);
-});
+app.get("/api/v2/convert/url/to/zpl/:url{.+}", async (c) => proxy(c.req.param('url')));
 
 // All other conversions
 app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", requestId({

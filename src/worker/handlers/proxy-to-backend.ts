@@ -21,7 +21,7 @@ export const proxyToBackend = ({
             headers: {
                 ...c.req.header(),
                 ...headers,
-            }
+            },
         });
     }
 };
