@@ -3,13 +3,14 @@ import { cors } from 'hono/cors';
 import { HTTPException } from "hono/http-exception";
 import { decode } from 'hono/jwt'
 import { proxy } from "hono/proxy";
+import { requestId } from "hono/request-id";
 import mysql from 'mysql2/promise';
 
 /**
  * TODO: Get rid of this once Cloudflare adds this type to the output of `wrangler types`
  */
 type Connection = mysql.Connection & {
-    query(sql: string, values: any): [mysql.OkPacket | mysql.ResultSetHeader | mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket[], mysql.FieldPacket[]];
+    query(sql: string, values: any): Promise<[mysql.OkPacket | mysql.ResultSetHeader | mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket[], mysql.FieldPacket[]]>;
 };
 
 async function getConnection(env: Env): Promise<Connection> {
@@ -24,6 +25,22 @@ async function getConnection(env: Env): Promise<Connection> {
         // Configure mysql2 to use static parsing instead of eval() parsing with disableEval
         disableEval: true,
     }) as Connection);
+}
+
+function getContentType(fileExtension: string): string | undefined {
+    switch (fileExtension) {
+        case "json": return "application/json";
+        case "xml":  return "application/xml";
+        case "zpl":  return "text/plain";
+        case "png":  return "image/png";
+        case "jpg":
+        case "jpeg":
+            return "image/jpeg";
+        case "gif":  return "image/gif";
+        case "bmp":  return "image/bmp";
+        case "pdf":  return "application/pdf";
+        default:     return undefined;
+    }
 }
 
 /**
@@ -77,20 +94,76 @@ app.use("/api/*", async (c, next) => {
 app.get("/api/v2/convert/url/to/zpl/:url{.+}", async (c) => {
     const url = new URL(c.req.param('url') ?? '');
     await validateLicense(c.env, c.req);
-    return fetch(url);
+    return proxy(url);
 });
+
+app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", requestId({
+    headerName: 'X-LZ-Request-Id',
+    generator: () => new Date().toISOString().substring(0, 19).replaceAll('-', '/').replaceAll('T', '/').replaceAll(':', '') + '--' + crypto.randomUUID(),
+}));
 
 app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
-    const request = c.req;
-    const response = await next();
-    console.log("Logging!"); // TODO: Log request and response data
-    return response;
+    let n;
+    try {
+        const requestID = c.get('requestId');
+        const loggingEnabled = Math.random() < c.env.LZ_LOG_SAMPLE_RATE;
+        const { sourceFormat, targetFormat } = c.req.param();
+
+        // TODO: Unwrap Base64 (if applicable) before storing in R2
+
+        // Clone and log request asynchronously
+        if (loggingEnabled) c.executionCtx.waitUntil(Promise.all([
+            c.env.LZ_R2_BUCKET.put(`${requestID}/in.${sourceFormat}`, await c.req.raw.clone().blob(), { httpMetadata: { contentType: getContentType(sourceFormat) } }),
+            c.env.LZ_R2_BUCKET.put(`${requestID}/params.json`, c.req.query('params') ?? '', { httpMetadata: { contentType: 'application/json' } }),
+        ]));
+
+        // Generate response
+        n = await next();
+
+        // Clone and log response asynchronously
+        if (loggingEnabled) c.executionCtx.waitUntil(
+            c.env.LZ_R2_BUCKET.put(`${requestID}/out.${targetFormat}`, await c.res.clone().blob(), { httpMetadata: { contentType: getContentType(targetFormat) } })
+        );
+
+        // TODO: Log all server errors
+        // if (!loggingEnabled && isServerError(response)) {
+        //     ctx.waitUntil(Promise.all([
+        //         env.LZ_R2_BUCKET.put(`err/${requestID}/in.${sourceFormat}`, request.clone().body, { httpMetadata: { contentType: getContentType(sourceFormat) } }),
+        //         env.LZ_R2_BUCKET.put(`err/${requestID}/params.json`, url.searchParams.get('params'), { httpMetadata: { contentType: 'application/json' } }),
+        //         env.LZ_R2_BUCKET.put(`err/${requestID}/out.${targetFormat}`, response.clone().body, { httpMetadata: { contentType: getContentType(targetFormat) } }),
+        //     ]));
+        // }
+    } catch (err) {
+        console.error("error logging conversion data", err);
+    }
+    return n ?? await next();
 });
 
-app.post("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c) => {
+app.all("*", async (c) => {
     const url = new URL(c.req.url);
     const backendUrl = c.env.LZ_PROD_API_BASE_URL + url.pathname + url.search;
-    return proxy(backendUrl, { ...c.req });
+    const response = await proxy(backendUrl, {
+        ...c.req,
+        headers: {
+            ...c.req.header(),
+            'X-LZ-IP': c.req.header("Cf-Connecting-Ip") ?? c.req.header("X-Forwarded-For") ?? '',
+            'X-LZ-Secret-Key': c.env.LZ_PROD_API_SECRET_KEY,
+        }
+    });
+    
+    // Force redirects to be relative because I couldn't get it to work in Spring Boot
+    if (response.status === 301 || response.status === 302) {
+        const locationHeader = response.headers.get('Location') ?? '';
+        if (locationHeader.includes('labelzoom.net/')) {
+            const url = new URL(locationHeader);
+
+            const newResponse = new Response(response.body, response);
+            newResponse.headers.set('Location', url.pathname + url.search);
+            return newResponse;
+        }
+    }
+
+    return response;
 });
 
 export default app;
