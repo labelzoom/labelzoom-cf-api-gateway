@@ -6,6 +6,7 @@ import { proxy } from "hono/proxy";
 import { requestId } from "hono/request-id";
 import mysql from 'mysql2/promise';
 import { logToR2 } from "./middleware/log-to-r2";
+import { proxyToBackend } from "./handlers/proxy-to-backend";
 
 /**
  * TODO: Get rid of this once Cloudflare adds this type to the output of `wrangler types`
@@ -88,39 +89,21 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", requestId({
 }));
 
 app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
-    const r2 = logToR2({
+    return logToR2({
         ...c.req.param(),
         r2Bucket: c.env.LZ_R2_BUCKET,
         sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
-    });
-    return r2(c, next);
+    })(c, next);
 });
 
 app.notFound(async (c) => {
-    const url = new URL(c.req.url);
-    const backendUrl = c.env.LZ_PROD_API_BASE_URL + url.pathname + url.search;
-    const response = await proxy(backendUrl, {
-        ...c.req,
+    return proxyToBackend({
+        baseUrl: c.env.LZ_PROD_API_BASE_URL,
         headers: {
-            ...c.req.header(),
             'X-LZ-IP': c.req.header("Cf-Connecting-Ip") ?? c.req.header("X-Forwarded-For") ?? '',
             'X-LZ-Secret-Key': c.env.LZ_PROD_API_SECRET_KEY,
-        }
-    });
-    
-    // Force redirects to be relative because I couldn't get it to work in Spring Boot
-    if (response.status === 301 || response.status === 302) {
-        const locationHeader = response.headers.get('Location') ?? '';
-        if (locationHeader.includes('labelzoom.net/')) {
-            const url = new URL(locationHeader);
-
-            const newResponse = new Response(response.body, response);
-            newResponse.headers.set('Location', url.pathname + url.search);
-            return newResponse;
-        }
-    }
-
-    return response;
+        },
+    })(c);
 });
 
 export default app;
