@@ -17,6 +17,7 @@ export const proxyToBackend = ({
         const backendUrl = baseUrl + url.pathname + url.search;
         return await proxy(backendUrl, {
             ...c.req,
+            redirect: 'manual',
             headers: {
                 ...c.req.header(),
                 ...headers,

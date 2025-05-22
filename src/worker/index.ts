@@ -56,7 +56,7 @@ async function validateLicense(env: Env, req: HonoRequest) {
 const app = new Hono<{ Bindings: Env }>();
 
 app.use("/api/*", async (c, next) => {
-    const corsWithVars = cors({
+    return cors({
         origin: c.env.LZ_ALLOWED_ORIGINS,
         allowHeaders: [],
         allowMethods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -74,8 +74,7 @@ app.use("/api/*", async (c, next) => {
 
         maxAge: 86400,
         credentials: true,
-    });
-    return corsWithVars(c, next);
+    })(c, next);
 });
 
 app.get("/api/v2/convert/url/to/zpl/:url{.+}", async (c) => {

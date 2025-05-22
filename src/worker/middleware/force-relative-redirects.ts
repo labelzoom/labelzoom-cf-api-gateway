@@ -6,7 +6,7 @@ import { MiddlewareHandler } from "hono";
  */
 export const forceRelativeRedirects = (): MiddlewareHandler => {
     return async function stripHostFromRedirect(c, next) {
-        const n = await next();
+        await next();
         
         const response = c.res;
         if (response.status === 301 || response.status === 302) {
@@ -21,7 +21,5 @@ export const forceRelativeRedirects = (): MiddlewareHandler => {
                 // Failed to parse location header as URL, it's already relative so do nothing
             }
         }
-
-        return n;
     };
 };
