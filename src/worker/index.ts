@@ -5,6 +5,7 @@ import { decode } from 'hono/jwt'
 import { proxy } from "hono/proxy";
 import { requestId } from "hono/request-id";
 import mysql from 'mysql2/promise';
+import { logToR2 } from "./middleware/log-to-r2";
 
 /**
  * TODO: Get rid of this once Cloudflare adds this type to the output of `wrangler types`
@@ -25,22 +26,6 @@ async function getConnection(env: Env): Promise<Connection> {
         // Configure mysql2 to use static parsing instead of eval() parsing with disableEval
         disableEval: true,
     }) as Connection);
-}
-
-function getContentType(fileExtension: string): string | undefined {
-    switch (fileExtension) {
-        case "json": return "application/json";
-        case "xml":  return "application/xml";
-        case "zpl":  return "text/plain";
-        case "png":  return "image/png";
-        case "jpg":
-        case "jpeg":
-            return "image/jpeg";
-        case "gif":  return "image/gif";
-        case "bmp":  return "image/bmp";
-        case "pdf":  return "application/pdf";
-        default:     return undefined;
-    }
 }
 
 /**
@@ -103,40 +88,12 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", requestId({
 }));
 
 app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
-    let n;
-    try {
-        const requestID = c.get('requestId');
-        const loggingEnabled = Math.random() < c.env.LZ_LOG_SAMPLE_RATE;
-        const { sourceFormat, targetFormat } = c.req.param();
-
-        // TODO: Unwrap Base64 (if applicable) before storing in R2
-
-        // Clone and log request asynchronously
-        if (loggingEnabled) c.executionCtx.waitUntil(Promise.all([
-            c.env.LZ_R2_BUCKET.put(`${requestID}/in.${sourceFormat}`, await c.req.raw.clone().blob(), { httpMetadata: { contentType: getContentType(sourceFormat) } }),
-            c.env.LZ_R2_BUCKET.put(`${requestID}/params.json`, c.req.query('params') ?? '', { httpMetadata: { contentType: 'application/json' } }),
-        ]));
-
-        // Generate response
-        n = await next();
-
-        // Clone and log response asynchronously
-        if (loggingEnabled) c.executionCtx.waitUntil(
-            c.env.LZ_R2_BUCKET.put(`${requestID}/out.${targetFormat}`, await c.res.clone().blob(), { httpMetadata: { contentType: getContentType(targetFormat) } })
-        );
-
-        // TODO: Log all server errors
-        // if (!loggingEnabled && isServerError(response)) {
-        //     ctx.waitUntil(Promise.all([
-        //         env.LZ_R2_BUCKET.put(`err/${requestID}/in.${sourceFormat}`, request.clone().body, { httpMetadata: { contentType: getContentType(sourceFormat) } }),
-        //         env.LZ_R2_BUCKET.put(`err/${requestID}/params.json`, url.searchParams.get('params'), { httpMetadata: { contentType: 'application/json' } }),
-        //         env.LZ_R2_BUCKET.put(`err/${requestID}/out.${targetFormat}`, response.clone().body, { httpMetadata: { contentType: getContentType(targetFormat) } }),
-        //     ]));
-        // }
-    } catch (err) {
-        console.error("error logging conversion data", err);
-    }
-    return n ?? await next();
+    const r2 = logToR2({
+        ...c.req.param(),
+        r2Bucket: c.env.LZ_R2_BUCKET,
+        sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
+    });
+    return r2(c, next);
 });
 
 app.notFound(async (c) => {
