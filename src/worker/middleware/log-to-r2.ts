@@ -37,7 +37,7 @@ export const logToR2 = ({
 
     return async function logToR2(c, next) {
         const requestId = c.get('requestId');
-        let n;
+        let n: void | undefined;
         try {
             // TODO: Unwrap Base64 (if applicable) before storing in R2
 
