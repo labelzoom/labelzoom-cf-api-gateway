@@ -1,6 +1,5 @@
-import { Hono, HonoRequest } from "hono";
+import { Context, Hono } from "hono";
 import { cors } from 'hono/cors';
-import { HTTPException } from "hono/http-exception";
 import { decode } from 'hono/jwt'
 import { proxy } from "hono/proxy";
 import { requestId } from "hono/request-id";
@@ -8,49 +7,34 @@ import mysql from 'mysql2/promise';
 import { logToR2 } from "./middleware/log-to-r2";
 import { proxyToBackend } from "./handlers/proxy-to-backend";
 import { forceRelativeRedirects } from "./middleware/force-relative-redirects";
-
-/**
- * TODO: Get rid of this once Cloudflare adds this type to the output of `wrangler types`
- */
-type Connection = mysql.Connection & {
-    query(sql: string, values: any): Promise<[mysql.OkPacket | mysql.ResultSetHeader | mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket[], mysql.FieldPacket[]]>;
-};
-
-async function getConnection(env: Env): Promise<Connection> {
-    return (await mysql.createConnection({
-        host: env.DB.host,
-        user: env.DB.user,
-        password: env.DB.password,
-        database: env.DB.database,
-        port: env.DB.port,
-        // The following line is needed for mysql2 compatibility with Workers
-        // mysql2 uses eval() to optimize result parsing for rows with > 100 columns
-        // Configure mysql2 to use static parsing instead of eval() parsing with disableEval
-        disableEval: true,
-    }) as Connection);
-}
+import { every } from "hono/combine";
+import { hyperdrive } from "./middleware/hyperdrive";
+import { bearerAuth } from "hono/bearer-auth";
+import { Connection } from "./types/connection";
 
 /**
  * Validates the `Authorization` header on the request. If anything is wrong with the header (wrong format, invalid JWT token, invalid license or secret),
  * then an `HTTPException` will be thrown.
  * @throws {HTTPException}
  */
-async function validateLicense(env: Env, req: HonoRequest) {
-    // Verify header
-    const authHeader = req.header('Authorization') ?? '';
-    if (!authHeader.startsWith('Bearer ')) throw new HTTPException(401, { message: "Invalid Authorization header" });
+async function validateLicense(token: string, c: Context) {
+    const db = c.get('db') as Connection;
+    if (!db) throw new Error('license validator must be used with (and sequenced after) the hyperdrive middleware');
 
-    // Verify token
-    const token = authHeader.substring('Bearer '.length);
-    const { payload } = decode(token); // TODO: Add verification
-    if (!payload) throw new HTTPException(401, { message: "Invalid bearer token" });
+    try {
+        const { payload } = decode(token); // TODO: Add verification
+        if (!payload) return false;
 
-    // Verify license
-    const licenseId = payload.lic;
-    const licenseKey = payload.secret;
-    const db = await getConnection(env);
-    const [results] = await db.query("SELECT * FROM licenses WHERE id = ? AND license_secret = ?;", [licenseId, licenseKey]);
-    if ((results as mysql.RowDataPacket[]).length !== 1) throw new HTTPException(401, { message: "Invalid license" });
+        // Verify license
+        const licenseId = payload.lic;
+        const licenseKey = payload.secret;
+        
+        const [results] = await db.query("SELECT * FROM licenses WHERE id = ? AND license_secret = ?;", [licenseId, licenseKey]);
+        return (results as mysql.RowDataPacket[]).length === 1;
+    } catch (err) {
+        console.warn('error validating token', err);
+    }
+    return false;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -77,17 +61,28 @@ app.use("/api/*", async (c, next) => {
     })(c, next);
 });
 
+// URL-to-ZPL conversions
+app.use("/api/v2/convert/url/to/zpl/*", async (c, next) => {
+    return every(
+        hyperdrive({
+            hyperdrive: c.env.DB,
+        }),
+        bearerAuth({
+            verifyToken: validateLicense,
+        })
+    )(c, next);
+});
 app.get("/api/v2/convert/url/to/zpl/:url{.+}", async (c) => {
     const url = new URL(c.req.param('url') ?? '');
-    await validateLicense(c.env, c.req);
+    // await validateLicense(c.env, c.req);
     return proxy(url);
 });
 
+// All other conversions
 app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", requestId({
     headerName: 'X-LZ-Request-Id',
     generator: () => new Date().toISOString().substring(0, 19).replaceAll('-', '/').replaceAll('T', '/').replaceAll(':', '') + '--' + crypto.randomUUID(),
 }));
-
 app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
     return logToR2({
         ...c.req.param(),
@@ -96,8 +91,8 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
     })(c, next);
 });
 
+// All other requests
 app.use(forceRelativeRedirects());
-
 app.notFound(async (c) => {
     return proxyToBackend({
         baseUrl: c.env.LZ_PROD_API_BASE_URL,
