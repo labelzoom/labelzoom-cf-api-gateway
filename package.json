@@ -34,5 +34,6 @@
     "lint": "eslint .",
     "preview": "npm run build && vite preview",
     "test": "echo TODO"
-  }
+  },
+  "type": "module"
 }
