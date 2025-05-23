@@ -12,13 +12,14 @@ export const forceRelativeRedirects = (): MiddlewareHandler => {
         if (response.status === 301 || response.status === 302) {
             const locationHeader = response.headers.get('Location') ?? '';
             try {
-                const url = new URL(locationHeader);
+                const url = new URL(locationHeader); // throws TypeError if not a full URL
 
+                // URL parsed successfully, it's an absolute redirect rather than relative
                 const newResponse = new Response(response.body, response);
                 newResponse.headers.set('Location', url.pathname + url.search);
                 c.res = newResponse;
             } catch {
-                // Failed to parse location header as URL, it's already relative so do nothing
+                // failed to parse location header as URL, it's already a relative redirect (so do nothing)
             }
         }
     };

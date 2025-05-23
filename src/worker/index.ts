@@ -38,7 +38,7 @@ async function validateLicense(token: string, c: Context) {
 
 const app = new Hono<{ Bindings: Env }>();
 
-// Middleware for all API requests
+//#region Middleware for all API requests
 app.use("/api/*", async (c, next) => {
     return cors({
         origin: c.env.LZ_ALLOWED_ORIGINS,
@@ -60,8 +60,9 @@ app.use("/api/*", async (c, next) => {
         credentials: true,
     })(c, next);
 });
+//#endregion
 
-// URL-to-ZPL conversions
+//#region URL-to-ZPL conversions
 app.use("/api/v2/convert/url/to/zpl/*", async (c, next) => {
     return every(
         hyperdrive({
@@ -73,8 +74,9 @@ app.use("/api/v2/convert/url/to/zpl/*", async (c, next) => {
     )(c, next);
 });
 app.get("/api/v2/convert/url/to/zpl/:url{.+}", async (c) => proxy(c.req.param('url')));
+//#endregion
 
-// All other conversions
+//#region All other conversions
 app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", requestId({
     headerName: 'X-LZ-Request-Id',
     generator: () => new Date().toISOString().substring(0, 19).replaceAll('-', '/').replaceAll('T', '/').replaceAll(':', '') + '--' + crypto.randomUUID(),
@@ -86,8 +88,9 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
         sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
     })(c, next);
 });
+//#endregion
 
-// All other requests
+//#region All other requests
 app.use(forceRelativeRedirects());
 app.notFound(async (c) => {
     return proxyToBackend({
@@ -98,5 +101,6 @@ app.notFound(async (c) => {
         },
     })(c);
 });
+//#endregion
 
 export default app;
