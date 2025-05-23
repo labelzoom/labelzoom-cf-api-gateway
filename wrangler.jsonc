@@ -85,7 +85,13 @@
                     "binding": "LZ_R2_BUCKET",
                     "bucket_name": "labelzoom-conversions-dev"
                 }
-            ]
+            ],
+            "hyperdrive": [
+                {
+                    "binding": "DB",
+                    "id": "b8cf9f962a3f4aafa13d36e325661d6f",
+                }
+            ],
         },
         "public": {
             "vars": {
@@ -108,7 +114,14 @@
                     "binding": "LZ_R2_BUCKET",
                     "bucket_name": "labelzoom-conversions-prod"
                 }
-            ]
+            ],
+            "hyperdrive": [
+                {
+                    "binding": "DB",
+                    "id": "acbb74fcce674bb1920028d49c46b58f",
+                    "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
+                }
+            ],
         },
         "eus1": {
             "vars": {
@@ -131,7 +144,14 @@
                     "binding": "LZ_R2_BUCKET",
                     "bucket_name": "labelzoom-conversions-prod-eus1"
                 }
-            ]
+            ],
+            "hyperdrive": [
+                {
+                    "binding": "DB",
+                    "id": "acbb74fcce674bb1920028d49c46b58f",
+                    "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
+                }
+            ],
         },
         "eus2": {
             "vars": {
@@ -154,7 +174,14 @@
                     "binding": "LZ_R2_BUCKET",
                     "bucket_name": "labelzoom-conversions-prod-eus2"
                 }
-            ]
+            ],
+            "hyperdrive": [
+                {
+                    "binding": "DB",
+                    "id": "acbb74fcce674bb1920028d49c46b58f",
+                    "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
+                }
+            ],
         }
     },
     /**
