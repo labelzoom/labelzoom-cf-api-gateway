@@ -10,7 +10,7 @@ export const proxyToBackend = ({
     baseUrl = undefined,
     headers = undefined,
 }: ProxyToBackendOptions = {}): NotFoundHandler => {
-    if (!baseUrl) throw new Error('proxy-to-backend handler requires backendBaseUrl');
+    if (!baseUrl) throw new Error('proxy-to-backend handler requires baseUrl');
 
     return async function proxyToBackend(c) {
         const url = new URL(c.req.url);
