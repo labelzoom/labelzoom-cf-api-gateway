@@ -46,7 +46,9 @@ export const hyperdrive = (hyperdriveOptions: HyperdriveOptions = {}): Middlewar
     if (!hyperdriveConfig) throw new Error('hyperdrive middleware requires hyperdrive configuration');
 
     return async function hyperdrive(c, next) {
-        c.set('db', await getConnection(hyperdriveConfig))
+        const connection = await getConnection(hyperdriveConfig);
+        c.set('db', connection);
         await next();
+        c.executionCtx.waitUntil(connection.end());
     }
 }

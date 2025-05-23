@@ -70,6 +70,7 @@ app.use("/api/v2/convert/url/to/zpl/*", async (c, next) => {
         }),
         bearerAuth({
             verifyToken: validateLicense,
+            invalidTokenMessage: 'Unauthorized: invalid token or license',
         })
     )(c, next);
 });
