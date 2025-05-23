@@ -4,7 +4,7 @@
  */
 {
     "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "labelzoom-cf-api-proxy-hono",
+    "name": "labelzoom-cf-api-proxy",
     "main": "./src/worker/index.ts",
     "compatibility_date": "2025-04-01",
     "compatibility_flags": [
