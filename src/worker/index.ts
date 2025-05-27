@@ -8,7 +8,7 @@ import { logToR2 } from "./middleware/log-to-r2";
 import { proxyToBackend } from "./handlers/proxy-to-backend";
 import { forceRelativeRedirects } from "./middleware/force-relative-redirects";
 import { every } from "hono/combine";
-import { hyperdrive } from "./middleware/hyperdrive-mysql";
+import { hyperdriveMysql } from "./middleware/hyperdrive-mysql";
 import { bearerAuth } from "hono/bearer-auth";
 
 async function verifyTokenAndLicense(token: string, c: Context) {
@@ -59,7 +59,7 @@ app.use("/api/*", async (c, next) => {
 //#region URL-to-ZPL conversions
 app.use("/api/v2/convert/url/to/zpl/*", async (c, next) => {
     return every(
-        hyperdrive({
+        hyperdriveMysql({
             config: c.env.DB,
         }),
         bearerAuth({
