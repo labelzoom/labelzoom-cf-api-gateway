@@ -3,6 +3,7 @@
 // Runtime types generated with workerd@1.20250416.0 2025-04-01 nodejs_compat
 declare namespace Cloudflare {
     interface Env {
+        ENVIRONMENT: string;
         LZ_ALLOWED_ORIGINS: string[];
         LZ_LOG_SAMPLE_RATE: number;
         LZ_ERROR_SAMPLE_RATE: number;

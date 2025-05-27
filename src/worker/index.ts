@@ -10,6 +10,7 @@ import { forceRelativeRedirects } from "./middleware/force-relative-redirects";
 import { every } from "hono/combine";
 import { hyperdriveMysql } from "./middleware/hyperdrive-mysql";
 import { bearerAuth } from "hono/bearer-auth";
+import { logger } from "hono/logger";
 
 async function verifyTokenAndLicense(token: string, c: Context) {
     const db = c.get('db');
@@ -72,21 +73,29 @@ app.get("/api/v2/convert/url/to/zpl/:url{.+}", async (c) => proxy(c.req.param('u
 //#endregion
 
 //#region All other conversions
-app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", requestId({
-    headerName: 'X-LZ-Request-Id',
-    generator: () => new Date().toISOString().substring(0, 19).replaceAll('-', '/').replaceAll('T', '/').replaceAll(':', '') + '--' + crypto.randomUUID(),
-}));
 app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
-    return logToR2({
-        ...c.req.param(),
-        r2Bucket: c.env.LZ_R2_BUCKET,
-        sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
-    })(c, next);
+    return every(
+        requestId({
+            headerName: 'X-LZ-Request-Id',
+            generator: () => new Date().toISOString().substring(0, 19).replaceAll('-', '/').replaceAll('T', '/').replaceAll(':', '') + '--' + crypto.randomUUID(),
+        }),
+        logToR2({
+            ...c.req.param(),
+            r2Bucket: c.env.LZ_R2_BUCKET,
+            sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
+        })
+    )(c, next);
 });
 //#endregion
 
 //#region All other requests
 app.use(forceRelativeRedirects());
+app.use(async (c, next) => {
+    if (c.env.ENVIRONMENT === 'dev') {
+        return logger()(c, next);
+    }
+    await next();
+});
 app.notFound(async (c) => {
     return proxyToBackend({
         baseUrl: c.env.LZ_PROD_API_BASE_URL,
