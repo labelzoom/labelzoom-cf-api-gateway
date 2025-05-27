@@ -2,8 +2,8 @@ import { NotFoundHandler } from "hono";
 import { proxy } from "hono/proxy";
 
 export type ProxyToBackendOptions = {
-    baseUrl?: string,
-    headers?: HeadersInit,
+    baseUrl?: string;
+    headers?: HeadersInit;
 };
 
 export const proxyToBackend = ({
@@ -12,7 +12,7 @@ export const proxyToBackend = ({
 }: ProxyToBackendOptions = {}): NotFoundHandler => {
     if (!baseUrl) throw new Error('proxy-to-backend handler requires baseUrl');
 
-    return async function proxyToBackend(c) {
+    return async (c) => {
         const url = new URL(c.req.url);
         const backendUrl = baseUrl + url.pathname + url.search;
         return await proxy(backendUrl, {
@@ -23,5 +23,5 @@ export const proxyToBackend = ({
                 ...headers,
             },
         });
-    }
+    };
 };

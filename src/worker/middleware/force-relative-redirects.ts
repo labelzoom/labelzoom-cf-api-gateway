@@ -5,7 +5,7 @@ import { MiddlewareHandler } from "hono";
  * @returns 
  */
 export const forceRelativeRedirects = (): MiddlewareHandler => {
-    return async function stripHostFromRedirect(c, next) {
+    return async (c, next) => {
         await next();
         
         const response = c.res;
@@ -15,9 +15,7 @@ export const forceRelativeRedirects = (): MiddlewareHandler => {
                 const url = new URL(locationHeader); // throws TypeError if not a full URL
 
                 // URL parsed successfully, it's an absolute redirect rather than relative
-                const newResponse = new Response(response.body, response);
-                newResponse.headers.set('Location', url.pathname + url.search);
-                c.res = newResponse;
+                c.res.headers.set('Location', url.pathname + url.search);
             } catch {
                 // failed to parse location header as URL, it's already a relative redirect (so do nothing)
             }

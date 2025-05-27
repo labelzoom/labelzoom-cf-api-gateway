@@ -35,7 +35,7 @@ export const logToR2 = ({
     const loggingEnabled = Math.random() < sampleRate;
     if (!loggingEnabled) return async (_c, next) => await next();
 
-    return async function logToR2(c, next) {
+    return async (c, next) => {
         const requestId = c.get('requestId');
         let n: void | undefined;
         try {
@@ -68,5 +68,5 @@ export const logToR2 = ({
         }
 
         return n ?? await next();
-    }
+    };
 };

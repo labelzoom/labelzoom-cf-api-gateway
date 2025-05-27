@@ -33,22 +33,22 @@ export type HyperdriveVariables = {
 };
 
 export type HyperdriveOptions = {
-    hyperdrive?: Hyperdrive;
+    config?: Hyperdrive;
 };
 
 /**
  * Cloudflare Hyperdrive Middleware for Hono.
- * @param hyperdriveOptions 
+ * @param options 
  * @returns 
  */
-export const hyperdrive = (hyperdriveOptions: HyperdriveOptions = {}): MiddlewareHandler => {
-    const hyperdriveConfig = hyperdriveOptions.hyperdrive;
+export const hyperdriveMysql = (options: HyperdriveOptions = {}): MiddlewareHandler => {
+    const hyperdriveConfig = options.config;
     if (!hyperdriveConfig) throw new Error('hyperdrive middleware requires hyperdrive configuration');
 
-    return async function hyperdrive(c, next) {
+    return async (c, next) => {
         const connection = await getConnection(hyperdriveConfig);
         c.set('db', connection);
         await next();
         c.executionCtx.waitUntil(connection.end());
-    }
+    };
 }

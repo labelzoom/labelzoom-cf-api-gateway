@@ -8,17 +8,12 @@ import { logToR2 } from "./middleware/log-to-r2";
 import { proxyToBackend } from "./handlers/proxy-to-backend";
 import { forceRelativeRedirects } from "./middleware/force-relative-redirects";
 import { every } from "hono/combine";
-import { hyperdrive } from "./middleware/hyperdrive";
+import { hyperdrive } from "./middleware/hyperdrive-mysql";
 import { bearerAuth } from "hono/bearer-auth";
 
-/**
- * Validates the `Authorization` header on the request. If anything is wrong with the header (wrong format, invalid JWT token, invalid license or secret),
- * then an `HTTPException` will be thrown.
- * @throws {HTTPException}
- */
-async function validateLicense(token: string, c: Context) {
+async function verifyTokenAndLicense(token: string, c: Context) {
     const db = c.get('db');
-    if (!db) throw new Error('license validator must be used with (and sequenced after) the hyperdrive middleware');
+    if (!db) throw new Error('license verifier must be used with (and sequenced after) the hyperdrive middleware');
 
     try {
         const { payload } = decode(token); // TODO: Add token verification (verify expiration date and signature) rather than just decoding
@@ -27,11 +22,10 @@ async function validateLicense(token: string, c: Context) {
         // Verify license
         const licenseId = payload.lic;
         const licenseKey = payload.secret;
-        
         const [results] = await db.query("SELECT * FROM licenses WHERE id = ? AND license_secret = ?;", [licenseId, licenseKey]);
         return (results as mysql.RowDataPacket[]).length === 1;
     } catch (err) {
-        console.warn('error validating token', err);
+        console.warn('error verifying token', err);
     }
     return false;
 }
@@ -66,10 +60,10 @@ app.use("/api/*", async (c, next) => {
 app.use("/api/v2/convert/url/to/zpl/*", async (c, next) => {
     return every(
         hyperdrive({
-            hyperdrive: c.env.DB,
+            config: c.env.DB,
         }),
         bearerAuth({
-            verifyToken: validateLicense,
+            verifyToken: verifyTokenAndLicense,
             invalidTokenMessage: 'Unauthorized: invalid token or license',
         })
     )(c, next);
