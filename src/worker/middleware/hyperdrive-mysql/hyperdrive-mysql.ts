@@ -1,6 +1,6 @@
 /**
  * @module
- * Cloudflare Hyperdrive Middleware for Hono.
+ * Cloudflare Hyperdrive (MySQL) Middleware for Hono.
  */
 
 import mysql from 'mysql2/promise';
@@ -13,8 +13,8 @@ export type Connection = mysql.Connection & {
     query(sql: string, values: any): Promise<[mysql.OkPacket | mysql.ResultSetHeader | mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket[], mysql.FieldPacket[]]>;
 };
 
-async function getConnection(hyperdrive: Hyperdrive): Promise<Connection> {
-    return (await mysql.createConnection({
+function getConnection(hyperdrive: Hyperdrive): Promise<Connection> {
+    return (mysql.createConnection({
         host: hyperdrive.host,
         user: hyperdrive.user,
         password: hyperdrive.password,
@@ -25,7 +25,7 @@ async function getConnection(hyperdrive: Hyperdrive): Promise<Connection> {
         // mysql2 uses eval() to optimize result parsing for rows with > 100 columns
         // Configure mysql2 to use static parsing instead of eval() parsing with disableEval
         disableEval: true,
-    }) as Connection);
+    }) as Promise<Connection>);
 }
 
 export type HyperdriveVariables = {
@@ -37,7 +37,7 @@ export type HyperdriveOptions = {
 };
 
 /**
- * Cloudflare Hyperdrive Middleware for Hono.
+ * Cloudflare Hyperdrive (MySQL) Middleware for Hono.
  * @param options 
  * @returns 
  */

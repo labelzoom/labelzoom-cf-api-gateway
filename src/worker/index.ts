@@ -34,7 +34,7 @@ async function verifyTokenAndLicense(token: string, c: Context) {
 const app = new Hono<{ Bindings: Env }>();
 
 //#region Middleware for all API requests
-app.use("/api/*", async (c, next) => {
+app.use("/api/*", (c, next) => {
     return cors({
         origin: c.env.LZ_ALLOWED_ORIGINS,
         allowHeaders: [],
@@ -58,7 +58,7 @@ app.use("/api/*", async (c, next) => {
 //#endregion
 
 //#region URL-to-ZPL conversions
-app.use("/api/v2/convert/url/to/zpl/*", async (c, next) => {
+app.use("/api/v2/convert/url/to/zpl/*", (c, next) => {
     return every(
         hyperdriveMysql({
             config: c.env.DB,
@@ -69,11 +69,11 @@ app.use("/api/v2/convert/url/to/zpl/*", async (c, next) => {
         })
     )(c, next);
 });
-app.get("/api/v2/convert/url/to/zpl/:url{.+}", async (c) => proxy(c.req.param('url')));
+app.get("/api/v2/convert/url/to/zpl/:url{.+}", (c) => proxy(c.req.param('url')));
 //#endregion
 
 //#region All other conversions
-app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", async (c, next) => {
+app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
     return every(
         requestId({
             headerName: 'X-LZ-Request-Id',
@@ -96,7 +96,7 @@ app.use(async (c, next) => {
     }
     await next();
 });
-app.notFound(async (c) => {
+app.notFound((c) => {
     return proxyToBackend({
         baseUrl: c.env.LZ_PROD_API_BASE_URL,
         headers: {
