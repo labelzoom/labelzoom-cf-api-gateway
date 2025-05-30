@@ -9,6 +9,8 @@ declare namespace Cloudflare {
         LZ_ERROR_SAMPLE_RATE: number;
         LZ_PROD_API_BASE_URL: string;
         LZ_PROD_API_SECRET_KEY: string;
+        LZ_PRIVATE_KEY: string;
+        LZ_PUBLIC_KEY: string;
         LZ_R2_BUCKET: R2Bucket;
         DB: Hyperdrive;
     }

@@ -46,6 +46,18 @@
             "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
         }
     ],
+    "secrets_store_secrets": [
+        {
+            "binding": "LZ_PRIVATE_KEY",
+            "store_id": "389643fca29849239d4465af799a0b28",
+            "secret_name": "LZ_PRIVATE_KEY"
+        },
+        {
+            "binding": "LZ_PUBLIC_KEY",
+            "store_id": "389643fca29849239d4465af799a0b28",
+            "secret_name": "LZ_PUBLIC_KEY"
+        },
+    ],
 
     /**
      * Environment Variables
@@ -92,6 +104,18 @@
                     "id": "b8cf9f962a3f4aafa13d36e325661d6f",
                 }
             ],
+            "secrets_store_secrets": [
+                {
+                    "binding": "LZ_PRIVATE_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PRIVATE_KEY"
+                },
+                {
+                    "binding": "LZ_PUBLIC_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PUBLIC_KEY"
+                },
+            ],
         },
         "public": {
             "vars": {
@@ -121,6 +145,18 @@
                     "id": "acbb74fcce674bb1920028d49c46b58f",
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
+            ],
+            "secrets_store_secrets": [
+                {
+                    "binding": "LZ_PRIVATE_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PRIVATE_KEY"
+                },
+                {
+                    "binding": "LZ_PUBLIC_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PUBLIC_KEY"
+                },
             ],
         },
         "eus1": {
@@ -152,6 +188,18 @@
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
+            "secrets_store_secrets": [
+                {
+                    "binding": "LZ_PRIVATE_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PRIVATE_KEY"
+                },
+                {
+                    "binding": "LZ_PUBLIC_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PUBLIC_KEY"
+                },
+            ],
         },
         "eus2": {
             "vars": {
@@ -181,6 +229,18 @@
                     "id": "acbb74fcce674bb1920028d49c46b58f",
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
+            ],
+            "secrets_store_secrets": [
+                {
+                    "binding": "LZ_PRIVATE_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PRIVATE_KEY"
+                },
+                {
+                    "binding": "LZ_PUBLIC_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PUBLIC_KEY"
+                },
             ],
         }
     },
