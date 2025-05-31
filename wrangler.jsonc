@@ -46,18 +46,6 @@
             "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
         }
     ],
-    "secrets_store_secrets": [
-        {
-            "binding": "LZ_PRIVATE_KEY",
-            "store_id": "389643fca29849239d4465af799a0b28",
-            "secret_name": "LZ_PRIVATE_KEY"
-        },
-        {
-            "binding": "LZ_PUBLIC_KEY",
-            "store_id": "389643fca29849239d4465af799a0b28",
-            "secret_name": "LZ_PUBLIC_KEY"
-        },
-    ],
 
     /**
      * Environment Variables
