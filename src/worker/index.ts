@@ -11,6 +11,7 @@ import { every } from "hono/combine";
 import { hyperdriveMysql } from "./middleware/hyperdrive-mysql";
 import { bearerAuth } from "hono/bearer-auth";
 import { logger } from "hono/logger";
+import { GET_LATEST_VERSION_SQL, VERIFY_LICENSE_SQL } from "./constants";
 
 async function verifyTokenAndLicense(token: string, c: Context) {
     const db = c.get('db');
@@ -23,7 +24,7 @@ async function verifyTokenAndLicense(token: string, c: Context) {
         // Verify license
         const licenseId = payload.lic;
         const licenseKey = payload.secret;
-        const [results] = await db.query("SELECT * FROM licenses WHERE id = ? AND license_secret = ?;", [licenseId, licenseKey]);
+        const [results] = await db.query(VERIFY_LICENSE_SQL, [licenseId, licenseKey]);
         return (results as mysql.RowDataPacket[]).length === 1;
     } catch (err) {
         console.warn('error verifying token', err);
@@ -85,6 +86,25 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
             sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
         })
     )(c, next);
+});
+//#endregion
+
+//#region Download redirects
+app.use("/download/*", (c, next) => {
+    return hyperdriveMysql({
+        config: c.env.DB,
+    })(c, next);
+});
+app.get("/download/:version/:packageName", async (c) => {
+    let { version, packageName } = c.req.param();
+    if (version === 'latest') {
+        const db = c.get('db');
+        if (!db) throw new Error('download controller must be used with (and sequenced after) the hyperdrive middleware');
+        const [results] = await db.query(GET_LATEST_VERSION_SQL);
+        const rows = results as mysql.RowDataPacket[];
+        version = `${rows[0].major}.${rows[0].minor}.${rows[0].revision}`;
+    }
+    return c.redirect(`${c.env.S3_BUCKET}/${version}/${packageName}`);
 });
 //#endregion
 

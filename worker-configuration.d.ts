@@ -13,6 +13,7 @@ declare namespace Cloudflare {
         LZ_PUBLIC_KEY: string;
         LZ_R2_BUCKET: R2Bucket;
         DB: Hyperdrive;
+        S3_BUCKET: string;
     }
 }
 interface Env extends Cloudflare.Env {}

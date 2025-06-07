@@ -62,6 +62,7 @@
         "LZ_ERROR_SAMPLE_RATE": 1,
         "LZ_PROD_API_BASE_URL": "http://localhost:5000",
         "ENVIRONMENT": "dev",
+        "S3_BUCKET": "https://labelzoom-packages.s3.us-east-2.amazonaws.com",
     },
     "env": {
         "beta": {
@@ -76,6 +77,7 @@
                 "LZ_ERROR_SAMPLE_RATE": 1,
                 "LZ_PROD_API_BASE_URL": "https://api-backend.labelzoom.net",
                 "ENVIRONMENT": "staging",
+                "S3_BUCKET": "https://labelzoom-packages.s3.us-east-2.amazonaws.com",
             },
             "limits": {
                 "cpu_ms": 100
@@ -117,6 +119,7 @@
                 "LZ_ERROR_SAMPLE_RATE": 0,
                 "LZ_PROD_API_BASE_URL": "https://api-backend.labelzoom.net",
                 "ENVIRONMENT": "production",
+                "S3_BUCKET": "https://labelzoom-packages.s3.us-east-2.amazonaws.com",
             },
             "limits": {
                 "cpu_ms": 100
@@ -159,6 +162,7 @@
                 "LZ_ERROR_SAMPLE_RATE": 0,
                 "LZ_PROD_API_BASE_URL": "https://prod-api-eus1-backend.labelzoom.net",
                 "ENVIRONMENT": "production",
+                "S3_BUCKET": "https://labelzoom-packages.s3.us-east-2.amazonaws.com",
             },
             "limits": {
                 "cpu_ms": 100
@@ -201,6 +205,7 @@
                 "LZ_ERROR_SAMPLE_RATE": 1,
                 "LZ_PROD_API_BASE_URL": "https://prod-api-eus2-backend.labelzoom.net",
                 "ENVIRONMENT": "production",
+                "S3_BUCKET": "https://labelzoom-packages.s3.us-east-2.amazonaws.com",
             },
             "limits": {
                 "cpu_ms": 100
