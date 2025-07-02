@@ -4,7 +4,7 @@
   "version": "1.2.2",
   "private": true,
   "dependencies": {
-    "hono": "4.7.7",
+    "hono": "4.8.3",
     "mysql2": "^3.14.1",
     "react": "19.0.0",
     "react-dom": "19.0.0"
