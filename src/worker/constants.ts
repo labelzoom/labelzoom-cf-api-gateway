@@ -11,6 +11,9 @@ ON
 	p.id = pv.product_id
 WHERE
 	p.name = 'LabelZoom Studio'
+	AND p.enabled = 1
+	AND pv.enabled = 1
+	AND pvv.enabled = 1
 ORDER BY
 	pvv.major DESC,
 	pvv.minor DESC,
