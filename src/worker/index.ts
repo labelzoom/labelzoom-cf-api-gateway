@@ -38,7 +38,7 @@ const app = new Hono<{ Bindings: Env }>();
 app.use("/api/*", (c, next) => {
     return cors({
         origin: c.env.LZ_ALLOWED_ORIGINS,
-        allowHeaders: ['X-LZ-AppVersion'],
+        allowHeaders: ['Authorization','X-LZ-AppVersion'],
         allowMethods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 
         /* CORS-safelisted response headers:
