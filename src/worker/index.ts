@@ -11,7 +11,7 @@ import { every } from "hono/combine";
 import { hyperdriveMysql } from "./middleware/hyperdrive-mysql";
 import { bearerAuth } from "hono/bearer-auth";
 import { logger } from "hono/logger";
-import { GET_LATEST_VERSION_SQL, VERIFY_LICENSE_SQL } from "./constants";
+import { VERIFY_LICENSE_SQL } from "./constants";
 
 async function verifyTokenAndLicense(token: string, c: Context) {
     const db = c.get('db');
