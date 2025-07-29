@@ -90,22 +90,23 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
 //#endregion
 
 //#region Download redirects
-app.use("/download/*", (c, next) => {
-    return hyperdriveMysql({
-        config: c.env.DB,
-    })(c, next);
-});
-app.get("/download/:version/:packageName", async (c) => {
-    let { version, packageName } = c.req.param();
-    if (version === 'latest') {
-        const db = c.get('db');
-        if (!db) throw new Error('download controller must be used with (and sequenced after) the hyperdrive middleware');
-        const [results] = await db.query(GET_LATEST_VERSION_SQL);
-        const rows = results as mysql.RowDataPacket[];
-        version = `${rows[0].major}.${rows[0].minor}.${rows[0].revision}`;
-    }
-    return c.redirect(`${c.env.S3_BUCKET}/${version}/${packageName}`);
-});
+// TODO: Disabled temporarily until I figure out why Hyperdrive is broken
+// app.use("/download/*", (c, next) => {
+//     return hyperdriveMysql({
+//         config: c.env.DB,
+//     })(c, next);
+// });
+// app.get("/download/:version/:packageName", async (c) => {
+//     let { version, packageName } = c.req.param();
+//     if (version === 'latest') {
+//         const db = c.get('db');
+//         if (!db) throw new Error('download controller must be used with (and sequenced after) the hyperdrive middleware');
+//         const [results] = await db.query(GET_LATEST_VERSION_SQL);
+//         const rows = results as mysql.RowDataPacket[];
+//         version = `${rows[0].major}.${rows[0].minor}.${rows[0].revision}`;
+//     }
+//     return c.redirect(`${c.env.S3_BUCKET}/${version}/${packageName}`);
+// });
 //#endregion
 
 //#region All other requests
