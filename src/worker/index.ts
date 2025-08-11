@@ -12,6 +12,7 @@ import { hyperdriveMysql } from "./middleware/hyperdrive-mysql";
 import { bearerAuth } from "hono/bearer-auth";
 import { logger } from "hono/logger";
 import { GET_LATEST_VERSION_SQL, VERIFY_LICENSE_SQL } from "./constants";
+import { HTTPException } from "hono/http-exception";
 
 async function verifyTokenAndLicense(token: string, c: Context) {
     const db = c.get('db');
@@ -105,6 +106,31 @@ app.get("/download/:version/:packageName", async (c) => {
         version = `${rows[0].major}.${rows[0].minor}.${rows[0].revision}`;
     }
     return c.redirect(`${c.env.S3_BUCKET}/${version}/${packageName}`);
+});
+//#endregion
+
+//#region Diagnostics
+app.use("/api/v2/heartbeat/db-hyperdrive", (c, next) => {
+    return hyperdriveMysql({
+        config: c.env.DB,
+    })(c, next);
+});
+app.get("/api/v2/heartbeat/db-hyperdrive", async (c) => {
+    const db = c.get('db');
+    if (!db) throw new Error('heartbeat must be used with (and sequenced after) the hyperdrive middleware');
+    
+    try {
+        const [results] = await db.query('SELECT 1');
+        if ((results as mysql.RowDataPacket[]).length !== 1) {
+            throw new Error("Unexpected result from database");
+        }
+    } catch (err) {
+        if (err instanceof Error) {
+            throw new HTTPException(500, { message: err.message, cause: err });
+        }
+        throw new HTTPException(500, { message: 'Unknown error', cause: err });
+    }
+    return c.text('OK');
 });
 //#endregion
 
