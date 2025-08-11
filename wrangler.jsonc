@@ -42,7 +42,7 @@
     "hyperdrive": [
         {
             "binding": "DB",
-            "id": "acbb74fcce674bb1920028d49c46b58f",
+            "id": "68c40b656bce4b29ae0ed0bd2f309865",
             "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
         }
     ],
@@ -133,7 +133,7 @@
             "hyperdrive": [
                 {
                     "binding": "DB",
-                    "id": "acbb74fcce674bb1920028d49c46b58f",
+                    "id": "68c40b656bce4b29ae0ed0bd2f309865",
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
@@ -176,7 +176,7 @@
             "hyperdrive": [
                 {
                     "binding": "DB",
-                    "id": "acbb74fcce674bb1920028d49c46b58f",
+                    "id": "68c40b656bce4b29ae0ed0bd2f309865",
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
@@ -219,7 +219,7 @@
             "hyperdrive": [
                 {
                     "binding": "DB",
-                    "id": "acbb74fcce674bb1920028d49c46b58f",
+                    "id": "68c40b656bce4b29ae0ed0bd2f309865",
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
