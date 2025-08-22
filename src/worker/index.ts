@@ -142,13 +142,25 @@ app.use("/api/v3/*", (c, next) => {
 });
 app.post("/api/v3/auth/login", async (c) => {
     const { username, password } = await c.req.json();
-    // TODO: Verify username and password
+    const [results] = await c.get('db').query(`
+SELECT au.id
+  FROM auth_users au
+  JOIN auth_tokens at2
+    ON at2.user_id = au.id
+ WHERE au.email = ?
+   AND at2.token = ?
+   AND at2.expiry_date > CURDATE();
+        `, [username, password]);
+    if ((results as mysql.RowDataPacket[]).length !== 1) {
+        throw new HTTPException(401, { message: 'Invalid username or password' });
+    }
+
     const payload = {
-        iss: 'api.labelzoom.net',
-        sub: username,
+        iss: 'https://api.labelzoom.net',
+        sub: (results as mysql.RowDataPacket)[0].id,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 5, // TODO: Math.min(today + 30 days, license expiration)
-    }
+    };
     const token = await sign(payload, c.env.LZ_PRIVATE_KEY, "EdDSA");
     return c.text(token);
 });
