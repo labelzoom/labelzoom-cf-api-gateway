@@ -1,6 +1,6 @@
 import { Context, Hono } from "hono";
 import { cors } from 'hono/cors';
-import { decode } from 'hono/jwt';
+import { decode, sign } from 'hono/jwt';
 import { proxy } from "hono/proxy";
 import { requestId } from "hono/request-id";
 import mysql from 'mysql2/promise';
@@ -131,6 +131,26 @@ app.get("/api/v2/heartbeat/db-hyperdrive", async (c) => {
         throw new HTTPException(500, { message: 'Unknown error', cause: err });
     }
     return c.text('OK');
+});
+//#endregion
+
+//#region Authentication
+app.use("/api/v3/*", (c, next) => {
+    return hyperdriveMysql({
+        config: c.env.DB,
+    })(c, next);
+});
+app.post("/api/v3/auth/login", async (c) => {
+    const { username, password } = await c.req.json();
+    // TODO: Verify username and password
+    const payload = {
+        iss: 'api.labelzoom.net',
+        sub: username,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 5, // TODO: Math.min(today + 30 days, license expiration)
+    }
+    const token = await sign(payload, c.env.LZ_PRIVATE_KEY, "EdDSA");
+    return c.text(token);
 });
 //#endregion
 
