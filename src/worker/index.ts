@@ -143,11 +143,13 @@ app.use(async (c, next) => {
     await next();
 });
 app.notFound((c) => {
+    const originalHost = c.req.header('X-LZ-Original-Host') ?? (new URL(c.req.url)).hostname;
     return proxyToBackend({
         baseUrl: c.env.LZ_PROD_API_BASE_URL,
         headers: {
             'X-LZ-IP': c.req.header("CF-Connecting-IP") || c.req.header("X-Forwarded-For") || '',
             'X-LZ-Secret-Key': c.env.LZ_PROD_API_SECRET_KEY,
+            'X-LZ-Original-Host': originalHost,
         },
     })(c);
 });
