@@ -31,11 +31,11 @@ export const logToR2 = ({
 }: LogToR2Options = {}): MiddlewareHandler => {
     if (!sourceFormat || !targetFormat) throw new Error('LogToR2 middleware requires source format and target format so file extensions and content types can be set properly');
     if (!r2Bucket) throw new Error('LogToR2 middleware requires r2bucket');
-    
-    const loggingEnabled = Math.random() < sampleRate;
-    if (!loggingEnabled) return async (_c, next) => await next();
 
     return async (c, next) => {
+        const loggingEnabled = Math.random() < sampleRate;
+        if (!loggingEnabled) return await next();
+
         const requestId = c.get('requestId');
         let n: void | undefined;
         try {
