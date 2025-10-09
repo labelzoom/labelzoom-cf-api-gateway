@@ -1,4 +1,4 @@
-import { MiddlewareHandler } from "hono";
+import { HonoRequest, MiddlewareHandler } from "hono";
 
 function getContentType(fileExtension: string): string | undefined {
     switch (fileExtension) {
@@ -42,18 +42,13 @@ export const logToR2 = ({
             // TODO: Unwrap Base64 (if applicable) before storing in R2
 
             // Clone and log request asynchronously
-            c.executionCtx.waitUntil(Promise.all([
-                r2Bucket.put(`${requestId}/in.${sourceFormat}`, await c.req.raw.clone().blob(), { httpMetadata: { contentType: getContentType(sourceFormat) } }),
-                r2Bucket.put(`${requestId}/params.json`, c.req.query('params') ?? '', { httpMetadata: { contentType: 'application/json' } }),
-            ]));
+            c.executionCtx.waitUntil(logRequest(c.req, requestId, sourceFormat, r2Bucket));
 
             // Await response
             n = await next();
 
             // Clone and log response asynchronously
-            c.executionCtx.waitUntil(
-                r2Bucket.put(`${requestId}/out.${targetFormat}`, await c.res.clone().blob(), { httpMetadata: { contentType: getContentType(targetFormat) } })
-            );
+            c.executionCtx.waitUntil(logResponse(c.res, requestId, targetFormat, r2Bucket));
 
             // TODO: Log all server errors
             // if (!loggingEnabled && isServerError(response)) {
@@ -70,3 +65,14 @@ export const logToR2 = ({
         return n ?? await next();
     };
 };
+
+async function logRequest(req: HonoRequest, requestId: string, sourceFormat: string, r2Bucket: R2Bucket) {
+    return Promise.all([
+        r2Bucket.put(`${requestId}/in.${sourceFormat}`, await req.raw.clone().blob(), { httpMetadata: { contentType: getContentType(sourceFormat) } }),
+        r2Bucket.put(`${requestId}/params.json`, req.query('params') ?? '', { httpMetadata: { contentType: 'application/json' } }),
+    ]);
+}
+
+async function logResponse(res: Response, requestId: string, targetFormat: string, r2Bucket: R2Bucket) {
+    return r2Bucket.put(`${requestId}/out.${targetFormat}`, await res.clone().blob(), { httpMetadata: { contentType: getContentType(targetFormat) } });
+}
