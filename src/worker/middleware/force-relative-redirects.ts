@@ -15,7 +15,7 @@ export const forceRelativeRedirects = (): MiddlewareHandler => {
                 const url = new URL(locationHeader); // throws TypeError if not a full URL
 
                 // URL parsed successfully, it's an absolute redirect rather than relative
-                if (/\.?labelzoom.net$/.test(url.host)) {
+                if (/\.?labelzoom\.net$/i.test(url.host)) {
                     c.res.headers.set('Location', url.pathname + url.search);
                 }
             } catch {

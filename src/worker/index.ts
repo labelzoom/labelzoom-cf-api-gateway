@@ -77,6 +77,12 @@ app.get("/api/v2/convert/url/to/zpl/:url{.+}", (c) => proxy(c.req.param('url')))
 //#region All other conversions
 app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
     return every(
+        (c, next) => {
+            if ((c.req.header('Content-Type') ?? '') === '') {
+                throw new HTTPException(400, { message: 'Content-Type header is required' });
+            }
+            return next();
+        },
         requestId({
             headerName: 'X-LZ-Request-Id',
             generator: () => new Date().toISOString().substring(0, 19).replaceAll('-', '/').replaceAll('T', '/').replaceAll(':', '') + '--' + crypto.randomUUID(),
@@ -85,7 +91,7 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
             ...c.req.param(),
             r2Bucket: c.env.LZ_R2_BUCKET,
             sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
-        })
+        }),
     )(c, next);
 });
 //#endregion
