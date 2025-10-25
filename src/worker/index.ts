@@ -11,8 +11,10 @@ import { every } from "hono/combine";
 import { hyperdriveMysql } from "./middleware/hyperdrive-mysql";
 import { bearerAuth } from "hono/bearer-auth";
 import { logger } from "hono/logger";
-import { GET_LATEST_VERSION_SQL, VERIFY_LICENSE_SQL } from "./constants";
+import { GET_CUSTOMER_ID_FROM_LICENSE_SQL, GET_LATEST_VERSION_SQL, VERIFY_LICENSE_SQL } from "./constants";
 import { HTTPException } from "hono/http-exception";
+
+const JWT_REGEX = /^[A-Za-z0-9_-]{2,}(?:\.[A-Za-z0-9_-]{2,}){2}$/;
 
 async function verifyTokenAndLicense(token: string, c: Context) {
     const db = c.get('db');
@@ -31,6 +33,33 @@ async function verifyTokenAndLicense(token: string, c: Context) {
         console.warn('error verifying token', err);
     }
     return false;
+}
+
+async function getCustomerIdFromAuth(c: Context) {
+    try {
+        const auth = c.req.header('Authorization') ?? '';
+        if (!auth.startsWith('Bearer ')) return undefined;
+        const token = auth.substring(7);
+        if (JWT_REGEX.test(token))
+        {
+            const { payload } = decode(token); // TODO: Add token verification (verify expiration date and signature) rather than just decoding
+            if (!payload) return undefined;
+
+            // Verify license
+            const db = c.get('db');
+            if (!db) throw new Error('hyperdrive middleware must be used to retrieve customer ID from JWTs');
+            const licenseId = payload.lic;
+            const licenseKey = payload.secret;
+            const [results] = await db.query(GET_CUSTOMER_ID_FROM_LICENSE_SQL, [licenseId, licenseKey]);
+
+            const customerId = (results as mysql.RowDataPacket[])[0]?.company_name;
+            if (customerId?.startsWith('cus_')) return customerId;
+        }
+        // TODO: Add support for static API keys
+    } catch (err) {
+        console.warn('error getting customer id from auth', err);
+    }
+    return undefined;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -68,7 +97,7 @@ app.use("/api/v2/convert/url/to/zpl/*", (c, next) => {
         bearerAuth({
             verifyToken: verifyTokenAndLicense,
             invalidTokenMessage: 'Unauthorized: invalid token or license',
-        })
+        }),
     )(c, next);
 });
 app.get("/api/v2/convert/url/to/zpl/:url{.+}", (c) => proxy(c.req.param('url')));
@@ -92,6 +121,20 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
             r2Bucket: c.env.LZ_R2_BUCKET,
             sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
         }),
+        hyperdriveMysql({
+            config: c.env.DB,
+        }),
+        async (c, next) => {
+            const customerId = await getCustomerIdFromAuth(c);
+            if (customerId) {
+                const queue = c.env.API_REQUESTS_QUEUE as Queue<any>;
+                await queue.send({
+                    customer: customerId,
+                    event_name: 'api_requests',
+                });
+            }
+            return next();
+        },
     )(c, next);
 });
 //#endregion
