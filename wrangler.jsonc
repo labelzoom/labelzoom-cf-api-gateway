@@ -235,7 +235,50 @@
                     "secret_name": "LZ_PUBLIC_KEY"
                 },
             ],
-        }
+        },
+        "global": {
+            "vars": {
+                "LZ_ALLOWED_ORIGINS": [
+                    "https://labelzoom.net",
+                    "https://www.labelzoom.net",
+                    "https://beta.labelzoom.net",
+                    "https://gatsby.labelzoom.net",
+                ],
+                "LZ_LOG_SAMPLE_RATE": 0,
+                "LZ_ERROR_SAMPLE_RATE": 0,
+                "LZ_PROD_API_BASE_URL": "https://prod-api.label-zoom.com",
+                "ENVIRONMENT": "production",
+                "S3_BUCKET": "https://labelzoom-packages.s3.us-east-2.amazonaws.com",
+            },
+            "limits": {
+                "cpu_ms": 100
+            },
+            "r2_buckets": [
+                {
+                    "binding": "LZ_R2_BUCKET",
+                    "bucket_name": "labelzoom-conversions-prod-global"
+                }
+            ],
+            "hyperdrive": [
+                {
+                    "binding": "DB",
+                    "id": "a40ee45a6e1249d19caf72f7f6d40a92",
+                    "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
+                }
+            ],
+            "secrets_store_secrets": [
+                {
+                    "binding": "LZ_PRIVATE_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PRIVATE_KEY"
+                },
+                {
+                    "binding": "LZ_PUBLIC_KEY",
+                    "store_id": "389643fca29849239d4465af799a0b28",
+                    "secret_name": "LZ_PUBLIC_KEY"
+                },
+            ],
+        },
     },
     /**
      * Note: Use secrets to store sensitive data.

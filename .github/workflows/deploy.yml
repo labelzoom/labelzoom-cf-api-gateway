@@ -56,7 +56,7 @@ jobs:
     name: Deploy to PROD
     strategy:
       matrix:
-        environment: ['public', 'eus1', 'eus2']
+        environment: ['public', 'eus1', 'eus2', 'global']
     environment: ${{ matrix.environment }}
     permissions:
       contents: read
