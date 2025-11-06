@@ -35,6 +35,15 @@ async function verifyTokenAndLicense(token: string, c: Context) {
 
 const app = new Hono<{ Bindings: Env }>();
 
+//#region Debug and logging
+app.use((c, next) => {
+    if (c.env.ENVIRONMENT === 'dev') {
+        return logger()(c, next);
+    }
+    return next();
+});
+//#endregion
+
 //#region Middleware for all API requests
 app.use("/api/*", (c, next) => {
     return cors({
@@ -142,12 +151,6 @@ app.get("/api/v2/heartbeat/db-hyperdrive", async (c) => {
 
 //#region All other requests
 app.use(forceRelativeRedirects());
-app.use(async (c, next) => {
-    if (c.env.ENVIRONMENT === 'dev') {
-        return logger()(c, next);
-    }
-    await next();
-});
 app.notFound((c) => {
     const originalHost = c.req.header('X-LZ-Original-Host') ?? (new URL(c.req.url)).hostname;
     return proxyToBackend({
