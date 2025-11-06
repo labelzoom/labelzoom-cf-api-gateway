@@ -130,13 +130,13 @@ app.get("/api/v2/heartbeat/db-hyperdrive", async (c) => {
         if ((results as mysql.RowDataPacket[]).length !== 1) {
             throw new Error("Unexpected result from database");
         }
+        return c.text('OK');
     } catch (err) {
         if (err instanceof Error) {
             throw new HTTPException(500, { message: err.message, cause: err });
         }
         throw new HTTPException(500, { message: 'Unknown error', cause: err });
     }
-    return c.text('OK');
 });
 //#endregion
 
