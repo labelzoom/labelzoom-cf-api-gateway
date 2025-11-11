@@ -11,7 +11,14 @@
         "nodejs_compat"
     ],
     "observability": {
-        "enabled": true
+        "logs": {
+            "enabled": true,
+            "head_sampling_rate": 0.1,
+        },
+        "traces": {
+            "enabled": true,
+            "head_sampling_rate": 0.01,
+        },
     },
     "limits": {
         "cpu_ms": 100
@@ -82,6 +89,16 @@
             "limits": {
                 "cpu_ms": 100
             },
+            "observability": {
+                "logs": {
+                    "enabled": true,
+                    "head_sampling_rate": 1,
+                },
+                "traces": {
+                    "enabled": true,
+                    "head_sampling_rate": 1,
+                },
+            },
             "r2_buckets": [
                 {
                     "binding": "LZ_R2_BUCKET",
@@ -123,6 +140,16 @@
             },
             "limits": {
                 "cpu_ms": 100
+            },
+            "observability": {
+                "logs": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.1,
+                },
+                "traces": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.01,
+                },
             },
             "r2_buckets": [
                 {
@@ -167,6 +194,16 @@
             "limits": {
                 "cpu_ms": 100
             },
+            "observability": {
+                "logs": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.1,
+                },
+                "traces": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.01,
+                },
+            },
             "r2_buckets": [
                 {
                     "binding": "LZ_R2_BUCKET",
@@ -209,6 +246,16 @@
             },
             "limits": {
                 "cpu_ms": 100
+            },
+            "observability": {
+                "logs": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.1,
+                },
+                "traces": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.01,
+                },
             },
             "r2_buckets": [
                 {
