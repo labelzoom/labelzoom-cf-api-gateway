@@ -9,7 +9,7 @@ export const forceRelativeRedirects = (): MiddlewareHandler => {
         await next();
         
         const response = c.res;
-        if (response.status === 301 || response.status === 302) {
+        if (response.status >= 300 || response.status < 400) {
             const locationHeader = response.headers.get('Location') ?? '';
             try {
                 const url = new URL(locationHeader); // throws TypeError if not a full URL
