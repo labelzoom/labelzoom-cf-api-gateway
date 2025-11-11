@@ -5,7 +5,8 @@ function isRedirect(response: Response) {
 }
 
 /**
- * Force redirects to be relative
+ * Force redirects to be relative for all responses that may contain a `Location` header.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Location|Location Header - HTTP | MDN}
  * @returns 
  */
 export const forceRelativeRedirects = (): MiddlewareHandler => {
