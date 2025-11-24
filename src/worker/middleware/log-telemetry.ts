@@ -9,8 +9,8 @@ export const logTelemetry = ({} = {}): MiddlewareHandler => {
         const endTime = performance.now();
         const duration = endTime - startTime;
         c.executionCtx.waitUntil(queue.send({
-            requestHeaders: c.req.raw.headers,
-            responseHeaders: c.res.headers,
+            requestHeaders: Object.fromEntries(c.req.raw.headers.entries()),
+            responseHeaders: Object.fromEntries(c.res.headers.entries()),
             ts,
             duration,
         }));
