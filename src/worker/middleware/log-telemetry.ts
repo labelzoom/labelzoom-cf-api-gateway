@@ -13,6 +13,7 @@ export const logTelemetry = ({} = {}): MiddlewareHandler => {
                 url: c.req.url,
                 requestHeaders: Object.fromEntries(c.req.raw.headers.entries()),
                 responseHeaders: Object.fromEntries(c.res.headers.entries()),
+                responseStatus: c.res.status,
                 ts,
                 duration,
             }));
