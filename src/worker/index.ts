@@ -13,6 +13,7 @@ import { bearerAuth } from "hono/bearer-auth";
 import { logger } from "hono/logger";
 import { GET_LATEST_VERSION_SQL, VERIFY_LICENSE_SQL } from "./constants";
 import { HTTPException } from "hono/http-exception";
+import { logTelemetry } from "./middleware/log-telemetry";
 
 async function verifyTokenAndLicense(token: string, c: Context) {
     const db = c.get('db');
@@ -101,6 +102,7 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
             r2Bucket: c.env.LZ_R2_BUCKET,
             sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
         }),
+        logTelemetry(),
     )(c, next);
 });
 //#endregion

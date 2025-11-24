@@ -14,6 +14,7 @@ declare namespace Cloudflare {
         LZ_R2_BUCKET: R2Bucket;
         DB: Hyperdrive;
         S3_BUCKET: string;
+		API_REQUESTS_QUEUE: Queue<any>;
     }
 	interface GlobalProps {
 		mainModule: typeof import("./src/worker/index");

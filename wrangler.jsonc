@@ -53,6 +53,14 @@
             "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
         }
     ],
+    "queues": {
+        "producers": [
+            {
+                "queue": "api-requests-test",
+                "binding": "API_REQUESTS_QUEUE",
+            },
+        ],
+    },
 
     /**
      * Environment Variables
@@ -111,6 +119,14 @@
                     "id": "b8cf9f962a3f4aafa13d36e325661d6f",
                 }
             ],
+            "queues": {
+                "producers": [
+                    {
+                        "queue": "api-requests-test",
+                        "binding": "API_REQUESTS_QUEUE",
+                    },
+                ],
+            },
             "secrets_store_secrets": [
                 {
                     "binding": "LZ_PRIVATE_KEY",
@@ -164,6 +180,14 @@
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
+            "queues": {
+                "producers": [
+                    {
+                        "queue": "api-requests",
+                        "binding": "API_REQUESTS_QUEUE",
+                    },
+                ],
+            },
             "secrets_store_secrets": [
                 {
                     "binding": "LZ_PRIVATE_KEY",
@@ -217,6 +241,14 @@
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
+            "queues": {
+                "producers": [
+                    {
+                        "queue": "api-requests",
+                        "binding": "API_REQUESTS_QUEUE",
+                    },
+                ],
+            },
             "secrets_store_secrets": [
                 {
                     "binding": "LZ_PRIVATE_KEY",
@@ -270,6 +302,14 @@
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
+            "queues": {
+                "producers": [
+                    {
+                        "queue": "api-requests",
+                        "binding": "API_REQUESTS_QUEUE",
+                    },
+                ],
+            },
             "secrets_store_secrets": [
                 {
                     "binding": "LZ_PRIVATE_KEY",
