@@ -8,11 +8,16 @@ export const logTelemetry = ({} = {}): MiddlewareHandler => {
         await next();
         const endTime = performance.now();
         const duration = endTime - startTime;
-        c.executionCtx.waitUntil(queue.send({
-            requestHeaders: Object.fromEntries(c.req.raw.headers.entries()),
-            responseHeaders: Object.fromEntries(c.res.headers.entries()),
-            ts,
-            duration,
-        }));
+        try {
+            c.executionCtx.waitUntil(queue.send({
+                url: c.req.url,
+                requestHeaders: Object.fromEntries(c.req.raw.headers.entries()),
+                responseHeaders: Object.fromEntries(c.res.headers.entries()),
+                ts,
+                duration,
+            }));
+        } catch (err) {
+            console.error('error logging telemetry', err);
+        }
     };
 };
