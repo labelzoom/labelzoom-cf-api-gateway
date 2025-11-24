@@ -152,6 +152,7 @@ app.get("/api/v2/heartbeat/db-hyperdrive", async (c) => {
 //#endregion
 
 //#region All other requests
+app.all("/api/admin/*", (c) => c.json({ message: 'Forbidden' }, 403));
 app.use(forceRelativeRedirects());
 app.notFound((c) => {
     const originalHost = c.req.header('X-LZ-Original-Host') ?? (new URL(c.req.url)).hostname;
