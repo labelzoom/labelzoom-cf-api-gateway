@@ -91,6 +91,9 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
             if ((c.req.header('Content-Type') ?? '') === '') {
                 throw new HTTPException(400, { message: 'Content-Type header is required' });
             }
+            if (c.req.raw.body === null || Number(c.req.header('Content-Length') ?? '-1') === 0) {
+                throw new HTTPException(400, { message: 'Request body is required' });
+            }
             return next();
         },
         requestId({
