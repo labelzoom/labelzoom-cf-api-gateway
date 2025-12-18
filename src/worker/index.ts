@@ -165,6 +165,7 @@ app.notFound((c) => {
     return proxyToBackend({
         baseUrl: c.env.LZ_PROD_API_BASE_URL,
         headers: {
+            'X-LZ-Request-Id': c.get('requestId'),
             'X-LZ-IP': c.req.header("CF-Connecting-IP") || c.req.header("X-Forwarded-For") || '',
             'X-LZ-Secret-Key': c.env.LZ_PROD_API_SECRET_KEY,
             'X-LZ-Original-Host': originalHost,
