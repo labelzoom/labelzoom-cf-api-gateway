@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.11.2",
+    "@cloudflare/vitest-pool-workers": "^0.11.1",
     "@eslint/js": "9.38.0",
     "@types/node": "24.5.2",
     "@types/react": "19.2.2",
@@ -23,6 +24,7 @@
     "typescript": "5.9.2",
     "typescript-eslint": "8.46.2",
     "vite": "^7.1.12",
+    "vitest": "^3.2.4",
     "wrangler": "^4.47.0"
   },
   "scripts": {
@@ -33,7 +35,9 @@
     "dev": "vite",
     "lint": "eslint .",
     "preview": "npm run build && vite preview",
-    "test": "echo TODO"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "type": "module"
 }
