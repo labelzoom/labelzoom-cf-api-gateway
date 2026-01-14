@@ -13,6 +13,7 @@ import { bearerAuth } from "hono/bearer-auth";
 import { logger } from "hono/logger";
 import { GET_LATEST_VERSION_SQL, VERIFY_LICENSE_SQL } from "./constants";
 import { HTTPException } from "hono/http-exception";
+import { logTelemetry } from "./middleware/log-telemetry";
 
 async function verifyTokenAndLicense(token: string, c: Context) {
     const db = c.get('db');
@@ -34,6 +35,15 @@ async function verifyTokenAndLicense(token: string, c: Context) {
 }
 
 const app = new Hono<{ Bindings: Env }>();
+
+//#region Debug and logging
+app.use((c, next) => {
+    if (c.env.ENVIRONMENT === 'dev') {
+        return logger()(c, next);
+    }
+    return next();
+});
+//#endregion
 
 //#region Middleware for all API requests
 app.use("/api/*", (c, next) => {
@@ -75,8 +85,20 @@ app.get("/api/v2/convert/url/to/zpl/:url{.+}", (c) => proxy(c.req.param('url')))
 //#endregion
 
 //#region All other conversions
-app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
+app.use("/api/:version{v[\\d.]+}/convert/:sourceFormat/to/:targetFormat", (c, next) => {
     return every(
+        (c, next) => {
+            if ((c.req.header('Content-Type') ?? '') === '') {
+                throw new HTTPException(400, { message: 'Content-Type header is required' });
+            }
+            if (c.req.raw.body === null) {
+                throw new HTTPException(400, { message: 'Request body is required' });
+            }
+            if (Number(c.req.header('Content-Length') ?? '-1') === 0) {
+                throw new HTTPException(400, { message: 'Request body is required but Content-Length was 0' });
+            }
+            return next();
+        },
         requestId({
             headerName: 'X-LZ-Request-Id',
             generator: () => new Date().toISOString().substring(0, 19).replaceAll('-', '/').replaceAll('T', '/').replaceAll(':', '') + '--' + crypto.randomUUID(),
@@ -85,7 +107,8 @@ app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
             ...c.req.param(),
             r2Bucket: c.env.LZ_R2_BUCKET,
             sampleRate: c.env.LZ_LOG_SAMPLE_RATE,
-        })
+        }),
+        logTelemetry(),
     )(c, next);
 });
 //#endregion
@@ -124,13 +147,13 @@ app.get("/api/v2/heartbeat/db-hyperdrive", async (c) => {
         if ((results as mysql.RowDataPacket[]).length !== 1) {
             throw new Error("Unexpected result from database");
         }
+        return c.text('OK');
     } catch (err) {
         if (err instanceof Error) {
             throw new HTTPException(500, { message: err.message, cause: err });
         }
         throw new HTTPException(500, { message: 'Unknown error', cause: err });
     }
-    return c.text('OK');
 });
 //#endregion
 
@@ -167,18 +190,14 @@ SELECT au.id
 //#endregion
 
 //#region All other requests
+app.all("/api/admin/*", (c) => c.json({ message: 'Forbidden' }, 403));
 app.use(forceRelativeRedirects());
-app.use(async (c, next) => {
-    if (c.env.ENVIRONMENT === 'dev') {
-        return logger()(c, next);
-    }
-    await next();
-});
 app.notFound((c) => {
     const originalHost = c.req.header('X-LZ-Original-Host') ?? (new URL(c.req.url)).hostname;
     return proxyToBackend({
         baseUrl: c.env.LZ_PROD_API_BASE_URL,
         headers: {
+            'X-LZ-Request-Id': c.get('requestId'),
             'X-LZ-IP': c.req.header("CF-Connecting-IP") || c.req.header("X-Forwarded-For") || '',
             'X-LZ-Secret-Key': c.env.LZ_PROD_API_SECRET_KEY,
             'X-LZ-Original-Host': originalHost,

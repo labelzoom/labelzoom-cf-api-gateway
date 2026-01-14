@@ -1,10 +1,10 @@
 ![LabelZoom Logo](./docs/LabelZoom_Logo_f_400px.png)
 
-# labelzoom-cf-api-proxy
+# labelzoom-cf-api-gateway
 
-[![Build Status](https://github.com/labelzoom/labelzoom-cf-api-proxy/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/labelzoom/labelzoom-cf-api-proxy/actions?query=branch%3Amain)
+[![Build Status](https://github.com/labelzoom/labelzoom-cf-api-gateway/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/labelzoom/labelzoom-cf-api-gateway/actions?query=branch%3Amain)
 
-A Cloudflare Worker that serves as a reverse proxy for LabelZoom's public REST API. This project was bootstrapped using the [React + Vite + Hono + Cloudflare Workers](https://github.com/cloudflare/templates/tree/main/vite-react-template) template.
+A Cloudflare Worker that serves as an API Gateway for LabelZoom's public REST API. This project was bootstrapped using the [React + Vite + Hono + Cloudflare Workers](https://github.com/cloudflare/templates/tree/main/vite-react-template) template.
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/vite-react-template)
 

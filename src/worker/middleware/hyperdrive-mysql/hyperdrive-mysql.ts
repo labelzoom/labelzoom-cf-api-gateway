@@ -48,7 +48,10 @@ export const hyperdriveMysql = (options: HyperdriveOptions = {}): MiddlewareHand
     return async (c, next) => {
         const connection = await getConnection(hyperdriveConfig);
         c.set('db', connection);
-        await next();
-        c.executionCtx.waitUntil(connection.end());
+        try {
+            await next();
+        } finally {
+            c.executionCtx.waitUntil(connection.end());
+        }
     };
 }

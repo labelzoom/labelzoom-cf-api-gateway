@@ -10,8 +10,17 @@
     "compatibility_flags": [
         "nodejs_compat"
     ],
+	"workers_dev": false,
+	"preview_urls": false,
     "observability": {
-        "enabled": true
+        "logs": {
+            "enabled": true,
+            "head_sampling_rate": 0.1,
+        },
+        "traces": {
+            "enabled": true,
+            "head_sampling_rate": 0.01,
+        },
     },
     "limits": {
         "cpu_ms": 100
@@ -42,10 +51,18 @@
     "hyperdrive": [
         {
             "binding": "DB",
-            "id": "68c40b656bce4b29ae0ed0bd2f309865",
+            "id": "d337acc521ba4f2392fd657150fe1f4c",
             "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
         }
     ],
+    "queues": {
+        "producers": [
+            {
+                "queue": "api-requests-test",
+                "binding": "API_REQUESTS_QUEUE",
+            },
+        ],
+    },
 
     /**
      * Environment Variables
@@ -82,6 +99,16 @@
             "limits": {
                 "cpu_ms": 100
             },
+            "observability": {
+                "logs": {
+                    "enabled": true,
+                    "head_sampling_rate": 1,
+                },
+                "traces": {
+                    "enabled": true,
+                    "head_sampling_rate": 1,
+                },
+            },
             "r2_buckets": [
                 {
                     "binding": "LZ_R2_BUCKET",
@@ -94,6 +121,14 @@
                     "id": "b8cf9f962a3f4aafa13d36e325661d6f",
                 }
             ],
+            "queues": {
+                "producers": [
+                    {
+                        "queue": "api-requests-test",
+                        "binding": "API_REQUESTS_QUEUE",
+                    },
+                ],
+            },
             "secrets_store_secrets": [
                 {
                     "binding": "LZ_PRIVATE_KEY",
@@ -124,6 +159,16 @@
             "limits": {
                 "cpu_ms": 100
             },
+            "observability": {
+                "logs": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.1,
+                },
+                "traces": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.01,
+                },
+            },
             "r2_buckets": [
                 {
                     "binding": "LZ_R2_BUCKET",
@@ -133,10 +178,18 @@
             "hyperdrive": [
                 {
                     "binding": "DB",
-                    "id": "68c40b656bce4b29ae0ed0bd2f309865",
+                    "id": "d337acc521ba4f2392fd657150fe1f4c",
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
+            "queues": {
+                "producers": [
+                    {
+                        "queue": "api-requests",
+                        "binding": "API_REQUESTS_QUEUE",
+                    },
+                ],
+            },
             "secrets_store_secrets": [
                 {
                     "binding": "LZ_PRIVATE_KEY",
@@ -167,6 +220,16 @@
             "limits": {
                 "cpu_ms": 100
             },
+            "observability": {
+                "logs": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.1,
+                },
+                "traces": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.01,
+                },
+            },
             "r2_buckets": [
                 {
                     "binding": "LZ_R2_BUCKET",
@@ -176,10 +239,18 @@
             "hyperdrive": [
                 {
                     "binding": "DB",
-                    "id": "68c40b656bce4b29ae0ed0bd2f309865",
+                    "id": "d337acc521ba4f2392fd657150fe1f4c",
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
+            "queues": {
+                "producers": [
+                    {
+                        "queue": "api-requests",
+                        "binding": "API_REQUESTS_QUEUE",
+                    },
+                ],
+            },
             "secrets_store_secrets": [
                 {
                     "binding": "LZ_PRIVATE_KEY",
@@ -193,7 +264,7 @@
                 },
             ],
         },
-        "eus2": {
+        "global": {
             "vars": {
                 "LZ_ALLOWED_ORIGINS": [
                     "https://labelzoom.net",
@@ -201,28 +272,46 @@
                     "https://beta.labelzoom.net",
                     "https://gatsby.labelzoom.net",
                 ],
-                "LZ_LOG_SAMPLE_RATE": 0.001,
-                "LZ_ERROR_SAMPLE_RATE": 1,
-                "LZ_PROD_API_BASE_URL": "https://prod-api-eus2-backend.labelzoom.net",
+                "LZ_LOG_SAMPLE_RATE": 0,
+                "LZ_ERROR_SAMPLE_RATE": 0,
+                "LZ_PROD_API_BASE_URL": "https://prod-api.label-zoom.com",
                 "ENVIRONMENT": "production",
                 "S3_BUCKET": "https://labelzoom-packages.s3.us-east-2.amazonaws.com",
             },
             "limits": {
                 "cpu_ms": 100
             },
+            "observability": {
+                "logs": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.1,
+                },
+                "traces": {
+                    "enabled": true,
+                    "head_sampling_rate": 0.01,
+                },
+            },
             "r2_buckets": [
                 {
                     "binding": "LZ_R2_BUCKET",
-                    "bucket_name": "labelzoom-conversions-prod-eus2"
+                    "bucket_name": "labelzoom-conversions-prod-global"
                 }
             ],
             "hyperdrive": [
                 {
                     "binding": "DB",
-                    "id": "68c40b656bce4b29ae0ed0bd2f309865",
+                    "id": "d337acc521ba4f2392fd657150fe1f4c",
                     "localConnectionString": "mysql://lz_hyperdrive:Uid4lDiH5pltxYBFFNqe@ubuntu-database.internal.robfaust.com:3306/lz_spring"
                 }
             ],
+            "queues": {
+                "producers": [
+                    {
+                        "queue": "api-requests",
+                        "binding": "API_REQUESTS_QUEUE",
+                    },
+                ],
+            },
             "secrets_store_secrets": [
                 {
                     "binding": "LZ_PRIVATE_KEY",
@@ -235,7 +324,7 @@
                     "secret_name": "LZ_PUBLIC_KEY"
                 },
             ],
-        }
+        },
     },
     /**
      * Note: Use secrets to store sensitive data.
