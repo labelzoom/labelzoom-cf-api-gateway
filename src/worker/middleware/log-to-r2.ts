@@ -37,16 +37,19 @@ export const logToR2 = ({
         if (!loggingEnabled) return await next();
 
         const requestId = c.get('requestId');
-        let n: void | undefined;
         try {
             // TODO: Unwrap Base64 (if applicable) before storing in R2
 
             // Clone and log request asynchronously
             c.executionCtx.waitUntil(logRequest(c.req, requestId, sourceFormat, r2Bucket));
+        } catch (err) {
+            console.error(`error logging request data for request ${requestId}`, err);
+        }
 
-            // Await response
-            n = await next();
+        // Await response
+        await next();
 
+        try {
             // Clone and log response asynchronously
             c.executionCtx.waitUntil(logResponse(c.res, requestId, targetFormat, r2Bucket));
 
@@ -59,10 +62,8 @@ export const logToR2 = ({
             //     ]));
             // }
         } catch (err) {
-            console.error(`error logging conversion data for request ${requestId}`, err);
+            console.error(`error logging response data for request ${requestId}`, err);
         }
-
-        return n ?? await next();
     };
 };
 
