@@ -85,7 +85,7 @@ app.get("/api/v2/convert/url/to/zpl/:url{.+}", (c) => proxy(c.req.param('url')))
 //#endregion
 
 //#region All other conversions
-app.use("/api/v2/convert/:sourceFormat/to/:targetFormat", (c, next) => {
+app.use("/api/:version{v[\\d.]+}/convert/:sourceFormat/to/:targetFormat", (c, next) => {
     return every(
         (c, next) => {
             if ((c.req.header('Content-Type') ?? '') === '') {
