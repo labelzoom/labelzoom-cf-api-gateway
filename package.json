@@ -1,5 +1,5 @@
 {
-  "name": "labelzoom-cf-api-proxy",
+  "name": "labelzoom-cf-api-gateway",
   "description": "A Cloudflare Worker that serves as LabelZoom's custom API gateway",
   "version": "1.3.6",
   "private": true,
