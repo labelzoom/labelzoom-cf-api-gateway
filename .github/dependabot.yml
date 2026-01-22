@@ -16,7 +16,7 @@ updates:
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directory: "/.github/workflows/"
     schedule:
       interval: "weekly"
     labels:
