@@ -9,6 +9,9 @@ on:
 
 permissions:
   contents: read
+  checks: write  # For test result publishing
+  pull-requests: write  # For commenting on PRs
+  id-token: write # For Codecov
 
 jobs:
   test:
