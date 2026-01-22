@@ -11,6 +11,7 @@ permissions:
 jobs:
   report:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
     - uses: dorny/test-reporter@b082adf0eced0765477756c2a610396589b8c637 # v2.5.0
       with:

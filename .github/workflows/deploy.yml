@@ -17,6 +17,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Build and Test
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -24,6 +25,7 @@ jobs:
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: '22.x'
+          cache: 'npm'
       - run: npm ci
       - run: npm run build --if-present
       - run: npm test
@@ -43,6 +45,7 @@ jobs:
     needs: [test]
     if: github.event_name == 'push'
     name: Deploy to Beta
+    timeout-minutes: 5
     environment: beta
     permissions:
       contents: read
@@ -61,6 +64,7 @@ jobs:
     needs: [test]
     if: github.event_name == 'release'
     name: Deploy to PROD
+    timeout-minutes: 5
     strategy:
       matrix:
         environment: ['public', 'eus1', 'global']
